@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  geoscan-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geoscan-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET:-sua_chave_secreta_aqui}
+      - CORS_ORIGIN=http://localhost
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Optional: Add MongoDB for future database integration
+  # mongodb:
+  #   image: mongo:6.0
+  #   container_name: geoscan-mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
+
+volumes:
+  # mongo_data:
+  logs:
