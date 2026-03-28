@@ -307,6 +307,40 @@
 
     <script src="../auth.js"></script>
     <script>
+        // ========================================
+        // Configuração Global da API
+        // ========================================
+        const API = {
+            base: 'https://geo-scan-backend.vercel.app',
+            endpoints: {
+                vibration: '/vibration'
+            }
+        };
+
+        // Função auxiliar para fazer requisições à API
+        async function fetchAPI(endpoint, options = {}) {
+            try {
+                const url = `${API.base}${endpoint}`;
+                const response = await fetch(url, {
+                    method: options.method || 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error(`Erro ao chamar ${endpoint}:`, error);
+                return null;
+            }
+        }
+
         // ========== DADOS ESTÁTISTICOS REAIS ==========
         const estatisticas = {
             areasIdentificadas: 38,
@@ -344,6 +378,9 @@
             
             // Atualizar dados em tempo real
             setInterval(atualizarDadosTempoReal, 10000);
+
+            // Buscar dados de vibração do backend
+            buscarDadosVibracaoBackend();
         });
 
         // ========== ATUALIZAR RELÓGIO ==========
@@ -382,20 +419,8 @@
 
         // ========== ATUALIZAR DADOS EM TEMPO REAL ==========
         function atualizarDadosTempoReal() {
-            // Simular pequenas variações nos números
-            const variacao = Math.floor(Math.random() * 3) - 1; // -1, 0, ou 1
-            
-            // Atualizar dispositivos ativos (entre 6 e 10)
-            const novosDispositivos = Math.min(10, Math.max(6, estatisticas.dispositivosAtivos + variacao));
-            estatisticas.dispositivosAtivos = novosDispositivos;
-            document.getElementById('dispositivosAtivos').textContent = estatisticas.dispositivosAtivos;
-            
-            // Atualizar temperatura (entre 22 e 28)
-            const novasTemps = [22, 23, 24, 25, 26, 27, 28];
-            document.getElementById('temperature').textContent = novasTemps[Math.floor(Math.random() * novasTemps.length)] + '°C';
-            
-            // Log para debug (opcional)
-            console.log('Dados atualizados:', new Date().toLocaleTimeString());
+            // Dados agora vêm do backend via buscarDadosVibracaoBackend()
+            // Esta função mantida para compatibilidade
         }
 
         // ========== TOGGLE SIDEBAR ==========
@@ -417,6 +442,45 @@
             document.body.appendChild(notif);
             setTimeout(() => notif.remove(), 3000);
         }
+
+        // ========================================
+        // Integração com Backend - Dados em Tempo Real
+        // ========================================
+        
+        async function buscarDadosVibracaoBackend() {
+            try {
+                // Buscar últimas leituras de vibração
+                const dados = await fetchAPI(`${API.endpoints.vibration}?limit=10`);
+                
+                if (dados && dados.length > 0) {
+                    // Renderizar na tabela de vibração
+                    const tableBody = document.querySelector('#vibrationTable tbody');
+                    if (tableBody) {
+                        tableBody.innerHTML = '';
+                        dados.forEach(leitura => {
+                            const tr = document.createElement('tr');
+                            const timestamp = new Date(leitura.timestamp).toLocaleString('pt-PT');
+                            const deviceId = leitura.deviceId || leitura.device_id || '-';
+                            const value = parseFloat(leitura.value).toFixed(2);
+                            
+                            tr.innerHTML = `<td>${timestamp}</td><td>${deviceId}</td><td>${value}</td>`;
+                            tableBody.appendChild(tr);
+                        });
+                    }
+                    
+                    console.log(`✅ ${dados.length} leituras de vibração carregadas`);
+                } else {
+                    console.log('⚠️ Nenhum dado de vibração encontrado');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados de vibração:', error);
+            }
+        }
+
+        // Atualizar dados de vibração a cada 30 segundos
+        setInterval(() => {
+            buscarDadosVibracaoBackend();
+        }, 30000);
     </script>
     <script>
         // Vibration widget script (separate listener)

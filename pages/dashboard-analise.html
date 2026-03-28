@@ -79,6 +79,12 @@
             line-height: 1.2;
         }
         
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); color: #f39c12; }
+            100% { transform: scale(1); color: #1a2639; }
+        }
+        
         .kpi-footer {
             display: flex;
             align-items: center;
@@ -303,9 +309,9 @@
                         <div class="kpi-icon">
                             <i class="fas fa-weight-hanging"></i>
                         </div>
-                        <span class="kpi-label">Teor Médio</span>
+                        <span class="kpi-label">Vibração</span>
                     </div>
-                    <div class="kpi-value" id="teorMedio">12.5 ct/t</div>
+                    <div class="kpi-value" id="teorMedio">12.5 mm/s</div>
                     <div class="kpi-footer">
                         <span class="trend-up"><i class="fas fa-arrow-up"></i> +0.8%</span>
                         <span>este mês</span>
@@ -456,6 +462,40 @@
 
     <script src="../auth.js"></script>
     <script>
+        // ========================================
+        // Configuração Global da API
+        // ========================================
+        const API = {
+            base: 'https://geo-scan-backend.vercel.app',
+            endpoints: {
+                vibration: '/vibration'
+            }
+        };
+
+        // Função auxiliar para fazer requisições à API
+        async function fetchAPI(endpoint, options = {}) {
+            try {
+                const url = `${API.base}${endpoint}`;
+                const response = await fetch(url, {
+                    method: options.method || 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error(`Erro ao chamar ${endpoint}:`, error);
+                return null;
+            }
+        }
+
         // Dados das minas (reais)
         const minas = [
             { nome: 'Catoca', producao: 12.4, teor: 14.2, qualidade: 95, status: 'Ativa', tendencia: '+5%' },
@@ -474,7 +514,6 @@
         };
 
         let producaoChart, qualidadeChart;
-        let intervalo;
 
         document.addEventListener('DOMContentLoaded', function() {
             const user = JSON.parse(localStorage.getItem('geoscan_user') || '{"nome":"Administrador"}');
@@ -497,6 +536,9 @@
             
             // Iniciar atualização em tempo real
             iniciarAtualizacao();
+
+            // Buscar dados de vibração do backend
+            buscarDadosVibracaoBackend();
         });
 
         function inicializarGraficos() {
@@ -639,24 +681,8 @@
         }
 
         function iniciarAtualizacao() {
-            intervalo = setInterval(() => {
-                // Atualizar KPIs com pequenas variações
-                const teor = (12 + Math.random() * 1).toFixed(1);
-                const producao = (45 + Math.random() * 2).toFixed(1);
-                const areas = 23 + Math.floor(Math.random() * 2);
-                const investimento = (2.3 + Math.random() * 0.3).toFixed(1);
-                
-                document.getElementById('teorMedio').textContent = teor + ' ct/t';
-                document.getElementById('producaoEstimada').textContent = producao + 'k ct';
-                document.getElementById('areasAtivas').textContent = areas;
-                document.getElementById('investimento').textContent = '$ ' + investimento + 'M';
-                
-                // Atualizar gráfico de produção com novos dados
-                const novasProducoes = minas.map(m => m.producao * (0.95 + Math.random() * 0.1));
-                producaoChart.data.datasets[0].data = novasProducoes;
-                producaoChart.update();
-                
-            }, 8000); // Atualiza a cada 8 segundos
+            // Não mais necessário - dados vêm apenas do backend via buscarDadosVibracaoBackend()
+            console.log('✅ Dados carregados do backend - sem simulação');
         }
 
         function toggleSidebar() {
@@ -664,7 +690,6 @@
         }
 
         function logout() {
-            clearInterval(intervalo);
             localStorage.removeItem('geoscan_user');
             window.location.href = '../index.html';
         }
@@ -676,6 +701,50 @@
             document.body.appendChild(notif);
             setTimeout(() => notif.remove(), 2000);
         }
+
+        // ========================================
+        // Integração com Backend - Dados em Tempo Real (ALTA FREQUÊNCIA)
+        // ========================================
+        
+        let ultimoIdRecebido = null; // Rastreiar último ID para evitar duplicatas
+        
+        async function buscarDadosVibracaoBackend() {
+            try {
+                // Buscar últimas 5 leituras para detectar mudanças
+                const dados = await fetchAPI(`${API.endpoints.vibration}?limit=5`);
+                
+                if (dados && dados.length > 0) {
+                    const ultimaLeitura = dados[0];
+                    
+                    // Só atualizar se for novo dado
+                    if (ultimaLeitura.id !== ultimoIdRecebido) {
+                        ultimoIdRecebido = ultimaLeitura.id;
+                        
+                        const valor = parseFloat(ultimaLeitura.value).toFixed(1);
+                        const timestamp = new Date(ultimaLeitura.timestamp);
+                        const agora = new Date();
+                        const segundos = ((agora - timestamp) / 1000).toFixed(1);
+                        
+                        // Atualizar o elemento com animação
+                        const elemento = document.getElementById('teorMedio');
+                        elemento.textContent = valor + ' mm/s';
+                        elemento.style.animation = 'pulse 0.3s ease-in-out';
+                        setTimeout(() => {
+                            elemento.style.animation = 'none';
+                        }, 300);
+                        
+                        console.log(`✅ ${new Date().toLocaleTimeString()}: ${valor} mm/s (${segundos}s atrás)`);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados:', error);
+            }
+        }
+
+        // Atualizar dados de vibração a cada 100ms para capturar variações
+        setInterval(() => {
+            buscarDadosVibracaoBackend();
+        }, 100);
     </script>
 </body>
 </html>

@@ -26,6 +26,7 @@ function fazerLogin() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const errorDiv = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
     
     // Converter para minúsculas (case insensitive)
     const usernameLower = username.toLowerCase().trim();
@@ -41,9 +42,11 @@ function fazerLogin() {
     ];
     
     if (!username || !password) {
-        errorDiv.classList.add('show');
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Preencha usuário e senha!';
-        setTimeout(() => errorDiv.classList.remove('show'), 3000);
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+            errorText.textContent = 'Preencha usuário e senha!';
+            setTimeout(() => errorDiv.style.display = 'none', 3000);
+        }
         return;
     }
     
@@ -59,11 +62,14 @@ function fazerLogin() {
             username: usuario.user,
             loginTime: new Date().toISOString()
         }));
+        // Redirecionar para o dashboard
         window.location.href = 'pages/dashboard-inicio.html';
     } else {
-        errorDiv.classList.add('show');
-        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Usuário ou senha incorretos!';
-        setTimeout(() => errorDiv.classList.remove('show'), 3000);
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+            errorText.textContent = 'Usuário ou senha incorretos!';
+            setTimeout(() => errorDiv.style.display = 'none', 3000);
+        }
     }
 }
 

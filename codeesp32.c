@@ -1,18 +1,18 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-// Updated ESP32 client to POST HTTPS to Vercel serverless endpoint
-// - Uses WiFiClientSecure with setInsecure() for easy TLS (ok for prototype)
-// - Adds NTP time sync to send ISO timestamp
-// - Configurable SERVER_URL and DEVICE_ID
-
 #include <WiFiClientSecure.h>
-#include <time.h>
+
+// Código ESP32 para enviar dados de vibração ao backend
+// - Conecta ao WiFi
+// - Lê sensor analógico
+// - Envia dados ao backend via HTTPS POST
+// - Backend gera timestamp automaticamente
 
 // --- CONFIGURE AQUI ---
 const char* WIFI_SSID = "M3";
 const char* WIFI_PASS = "1234567890";
-// Exemplo: https://your-vercel-app.vercel.app/api/sensor-data
-const char* SERVER_URL = "https://<YOUR-VERCEL-APP>.vercel.app/api/sensor-data";
+// Backend Vercel com endpoint de vibração
+const char* SERVER_URL = "https://geo-scan-backend.vercel.app/vibration";
 const char* DEVICE_ID = "ESP32-001";
 
 // Pinos
@@ -26,30 +26,6 @@ unsigned long lastBipTime = 0;
 
 // Optional: add an API key header if you protect the serverless endpoint
 // const char* API_KEY = "your-secret-key";
-
-void setupTime() {
-  // NTP para timestamps legíveis
-  configTime(0, 0, "pool.ntp.org", "time.google.com");
-  Serial.print("Aguardando sincronização de tempo");
-  time_t now = time(nullptr);
-  unsigned long start = millis();
-  while (now < 24 * 3600) {
-    delay(200);
-    Serial.print('.');
-    now = time(nullptr);
-    if (millis() - start > 10000) break; // tempo limite
-  }
-  Serial.println();
-}
-
-String isoTimestamp() {
-  time_t now = time(nullptr);
-  struct tm timeinfo;
-  gmtime_r(&now, &timeinfo);
-  char buf[32];
-  strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
-  return String(buf);
-}
 
 void setup() {
   Serial.begin(115200);
@@ -70,8 +46,6 @@ void setup() {
   } else {
     Serial.println("\nFalha ao conectar ao WiFi");
   }
-
-  setupTime();
 }
 
 void loop() {
@@ -113,9 +87,9 @@ void loop() {
         http.addHeader("Content-Type", "application/json");
         String payload = "{";
         payload += "\"deviceId\": \"" + String(DEVICE_ID) + "\",";
-        payload += "\"value\": " + String(sensorValue) + ",";
-        payload += "\"timestamp\": \"" + isoTimestamp() + "\"";
+        payload += "\"value\": " + String(sensorValue);
         payload += "}";
+        // Timestamp será gerado automaticamente no backend
 
         int code = http.POST(payload);
         Serial.print("HTTP code: "); Serial.println(code);

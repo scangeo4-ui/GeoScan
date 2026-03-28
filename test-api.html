@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Integração - GEO-SCAN API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2639 0%, #2c3e50 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #f39c12;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        h2 {
+            color: #1a2639;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .test-button {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .test-button:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+        
+        .test-button.secondary {
+            background: #3498db;
+        }
+        
+        .test-button.secondary:hover {
+            background: #2980b9;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+        
+        .output {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #1a2639;
+        }
+        
+        .output.success {
+            background: #d4edda;
+            border-color: #27ae60;
+            color: #155724;
+        }
+        
+        .output.error {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            color: #1565c0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d32f2f;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <i class="fas fa-satellite"></i>
+            Teste de Integração - GEO-SCAN API
+        </h1>
+        <p class="subtitle">Ferramenta para testar a integração com o backend</p>
+
+        <!-- Status da API -->
+        <div class="section">
+            <h2>
+                <i class="fas fa-server"></i>
+                Status da API
+                <span class="status offline" id="status-badge">Verificando...</span>
+            </h2>
+            <div class="info-box">
+                Backend: <code id="api-url">https://geo-scan-backend.vercel.app</code>
+            </div>
+            <button class="test-button" onclick="verificarStatusAPI()">
+                <i class="fas fa-check-circle"></i> Verificar Conectividade
+            </button>
+            <div class="output" id="status-output"></div>
+        </div>
+
+        <!-- Teste de Vibração -->
+        <div class="section">
+            <h2>
+                <i class="fas fa-wave-square"></i>
+                Teste de Vibração (GET)
+            </h2>
+            <div class="info-box">
+                Busca as últimas leituras de vibração do backend. Endpoint: <code>GET /vibration?limit=10</code>
+            </div>
+            <button class="test-button" onclick="buscarVibrações()">
+                <i class="fas fa-download"></i> Buscar Últimas Vibrações
+            </button>
+            <button class="test-button secondary" onclick="buscarVibrações(1)">
+                <i class="fas fa-download"></i> Buscar Última (1)
+            </button>
+            <div class="output" id="vibracao-output"></div>
+        </div>
+
+        <!-- Enviar Vibração -->
+        <div class="section">
+            <h2>
+                <i class="fas fa-upload"></i>
+                Enviar Vibração (POST)
+            </h2>
+            <div class="info-box">
+                Envia uma nova leitura de vibração para o backend. Endpoint: <code>POST /vibration</code>
+            </div>
+            <div class="input-group">
+                <input type="text" id="device-id" placeholder="Device ID (ex: sensor-01)" value="sensor-01">
+                <input type="number" id="vibration-value" placeholder="Valor (mm/s)" value="15.5" step="0.1">
+                <button class="test-button" onclick="enviarNovaVibracao()">
+                    <i class="fas fa-paper-plane"></i> Enviar
+                </button>
+            </div>
+            <div class="output" id="enviar-output"></div>
+        </div>
+
+        <!-- Teste RFID -->
+        <div class="section">
+            <h2>
+                <i class="fas fa-qrcode"></i>
+                Teste de RFID
+            </h2>
+            <div class="info-box">
+                Busca o último código RFID registrado. Endpoint: <code>GET /rfid</code>
+            </div>
+            <button class="test-button" onclick="buscarUltimoRFID()">
+                <i class="fas fa-qrcode"></i> Buscar Último RFID
+            </button>
+            <div class="output" id="rfid-output"></div>
+        </div>
+
+        <!-- Tabela de Respostas -->
+        <div class="section">
+            <h2>
+                <i class="fas fa-table"></i>
+                Histórico de Requisições
+            </h2>
+            <div id="log-container">
+                <p style="color: #64748b; text-align: center; padding: 20px;">
+                    Nenhuma requisição realizada ainda
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script>
+        let requestLog = [];
+
+        function addLog(method, endpoint, status, data) {
+            const timestamp = new Date().toLocaleTimeString('pt-PT');
+            requestLog.unshift({ timestamp, method, endpoint, status, data });
+            
+            // Manter apenas os últimos 20 registros
+            if (requestLog.length > 20) requestLog.pop();
+            
+            updateLogDisplay();
+        }
+
+        function updateLogDisplay() {
+            const container = document.getElementById('log-container');
+            
+            if (requestLog.length === 0) {
+                container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">Nenhuma requisição realizada ainda</p>';
+                return;
+            }
+            
+            container.innerHTML = requestLog.map(log => `
+                <div style="padding: 12px; border-bottom: 1px solid #e2e8f0; font-family: 'Courier New', monospace; font-size: 12px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: #1a2639;">
+                            <strong>${log.timestamp}</strong> - 
+                            <span style="background: ${log.method === 'GET' ? '#3498db' : '#27ae60'}; color: white; padding: 2px 6px; border-radius: 3px;">${log.method}</span>
+                        </span>
+                        <span style="color: #f39c12;">${log.status}</span>
+                    </div>
+                    <div style="color: #64748b;">${log.endpoint}</div>
+                </div>
+            `).join('');
+        }
+
+        async function verificarStatusAPI() {
+            const output = document.getElementById('status-output');
+            const badge = document.getElementById('status-badge');
+            
+            output.textContent = 'Verificando conectividade...';
+            output.className = 'output';
+            
+            try {
+                const start = Date.now();
+                const response = await fetch(API.base + '/vibration?limit=1');
+                const duration = Date.now() - start;
+                
+                if (response.ok) {
+                    badge.textContent = 'Online';
+                    badge.className = 'status online';
+                    output.textContent = `✅ Backend está online!\nTempo de resposta: ${duration}ms\nStatus: ${response.status}`;
+                    output.className = 'output success';
+                    addLog('GET', '/vibration', `${response.status} OK`, `${duration}ms`);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                badge.textContent = 'Offline';
+                badge.className = 'status offline';
+                output.textContent = `❌ Erro ao conectar ao backend:\n${error.message}`;
+                output.className = 'output error';
+                addLog('GET', '/vibration', 'ERRO', error.message);
+            }
+        }
+
+        async function buscarVibrações(limit = 10) {
+            const output = document.getElementById('vibracao-output');
+            output.textContent = `Buscando ${limit} leitura(s) de vibração...`;
+            output.className = 'output';
+            
+            try {
+                const dados = await fetchAPI(`/vibration?limit=${limit}`);
+                
+                if (dados && dados.length > 0) {
+                    let html = `✅ ${dados.length} leitura(s) encontrada(s):\n\n`;
+                    dados.forEach((d, i) => {
+                        html += `${i + 1}. ${d.timestamp} | Device: ${d.deviceId || d.device_id} | Valor: ${d.value} mm/s\n`;
+                    });
+                    output.textContent = html;
+                    output.className = 'output success';
+                    addLog('GET', `/vibration?limit=${limit}`, '200 OK', `${dados.length} registros`);
+                } else {
+                    output.textContent = '⚠️ Nenhum dado de vibração encontrado';
+                    output.className = 'output';
+                    addLog('GET', `/vibration?limit=${limit}`, '200 OK', 'Sem dados');
+                }
+            } catch (error) {
+                output.textContent = `❌ Erro: ${error.message}`;
+                output.className = 'output error';
+                addLog('GET', `/vibration?limit=${limit}`, 'ERRO', error.message);
+            }
+        }
+
+        async function enviarNovaVibracao() {
+            const deviceId = document.getElementById('device-id').value.trim();
+            const value = parseFloat(document.getElementById('vibration-value').value);
+            const output = document.getElementById('enviar-output');
+            
+            if (!deviceId || isNaN(value)) {
+                output.textContent = '❌ Preencha Device ID e Valor';
+                output.className = 'output error';
+                return;
+            }
+            
+            output.textContent = 'Enviando vibração...';
+            output.className = 'output';
+            
+            try {
+                const payload = {
+                    deviceId: deviceId,
+                    value: value
+                    // timestamp será gerado automaticamente no backend
+                };
+                
+                const response = await fetch(API.base + '/vibration', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.ok) {
+                    output.textContent = `✅ Vibração enviada com sucesso!\n\nDados:\n${JSON.stringify(payload, null, 2)}\n\n⏰ Timestamp gerado automaticamente no backend`;
+                    output.className = 'output success';
+                    addLog('POST', '/vibration', '200 OK', JSON.stringify(payload));
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                output.textContent = `❌ Erro ao enviar: ${error.message}`;
+                output.className = 'output error';
+                addLog('POST', '/vibration', 'ERRO', error.message);
+            }
+        }
+
+        async function buscarUltimoRFID() {
+            const output = document.getElementById('rfid-output');
+            output.textContent = 'Buscando último RFID...';
+            output.className = 'output';
+            
+            try {
+                const dados = await fetchAPI('/rfid');
+                
+                if (dados && dados.code) {
+                    output.textContent = `✅ Último RFID encontrado:\n${dados.code}`;
+                    output.className = 'output success';
+                    addLog('GET', '/rfid', '200 OK', dados.code);
+                } else {
+                    output.textContent = '⚠️ Nenhum código RFID registrado';
+                    output.className = 'output';
+                    addLog('GET', '/rfid', '200 OK', 'null');
+                }
+            } catch (error) {
+                output.textContent = `❌ Erro: ${error.message}`;
+                output.className = 'output error';
+                addLog('GET', '/rfid', 'ERRO', error.message);
+            }
+        }
+
+        // Verificar status ao carregar
+        window.addEventListener('load', () => {
+            verificarStatusAPI();
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body>
+</html>
