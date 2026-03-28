@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO-SCAN - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Estilos adicionais para o login */
+        .login-body {
+            /* Use local asset (mineral/mine image) for a project-appropriate background */
+            background-image: linear-gradient(rgba(8,10,18,0.48), rgba(8,10,18,0.48)), url('Assets/qw.png');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #111;
+        }
+        /* Logo de diamante no canto superior esquerdo - APENAS AQUI */
+        .diamond-corner {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            animation: fadeIn 1s ease;
+            z-index: 20;
+        }
+        .diamond-corner i {
+            font-size: 32px;
+            color: #f39c12;
+            animation: rotate 3s infinite linear;
+            filter: drop-shadow(0 0 10px rgba(243,156,18,0.5));
+        }
+
+        .diamond-corner span {
+            color: #f39c12;
+        }
+
+        .login-container {
+            /* Stronger translucent frosted-card effect for better contrast on busy backgrounds */
+            background: rgba(255,255,255,0.64);
+            border-radius: 16px;
+            box-shadow: 0 12px 36px rgba(2,6,23,0.52);
+            width: 400px;
+            padding: 34px;
+            animation: slideUp 0.5s ease;
+            border: 1px solid rgba(255,255,255,0.18);
+            backdrop-filter: blur(8px) saturate(120%);
+            -webkit-backdrop-filter: blur(8px) saturate(120%);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== LOGO PERFEITAMENTE CENTRALIZADO ===== */
+        .logo {
+            text-align: center;
+            width: 100%;
+            margin-bottom: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo h1 {
+            font-size: 26px;
+            color: #1a2639;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-align: center;
+            width: 100%;
+            display: block;
+        }
+
+        .logo span {
+            color: #f39c12;
+        }
+
+        .logo p {
+            color: #64748b;
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 400;
+            text-align: center;
+            width: 100%;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-group label i {
+            margin-right: 5px;
+            color: #f39c12;
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            padding: 14px 45px 14px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .password-wrapper input:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #64748b;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #f39c12;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #e74c3c;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        .login-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .login-footer p {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .login-footer i {
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <!-- LOGO PERFEITAMENTE CENTRALIZADO -->
+        <div class="logo">
+           <h1>GEO<span>-SCAN</span></h1>
+           <p>Sistema de Monitoramento de Zonas Mineiras</p>
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- Formulário de login -->
+        <form id="loginForm" onsubmit="return false;">
+            <!-- Campo Usuário -->
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> Usuário</label>
+                <input type="text" id="username" placeholder="Digite seu usuário" autocomplete="off">
+            </div>
+
+            <!-- Campo Senha com ícone de olho -->
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Senha</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" placeholder="Digite sua senha" autocomplete="off">
+                    <i class="fas fa-eye toggle-password" id="togglePassword" onclick="toggleSenha()"></i>
+                </div>
+            </div>
+
+            <!-- Botão de login -->
+            <button type="button" class="login-btn" onclick="fazerLogin()">
+                <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+            </button>
+        </form>
+
+        <!-- Rodapé -->
+        <div class="login-footer">
+            <p><i class="fas fa-shield-alt"></i> Acesso restrito à equipa GEO-SCAN</p>
+        </div>
+    </div>
+
+    <!-- Carrega o script centralizado de autenticação -->
+    <script src="auth.js"></script>
+</body>
+</html>

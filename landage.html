@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO-SCAN - Monitoramento e Geolocalização Mineira</title>
+    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a2639;
+            --accent: #f39c12;
+            --text-light: #ecf0f1;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(26, 38, 57, 0.8), rgba(26, 38, 57, 0.8)), 
+                        url('https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&q=80'); /* Imagem de satélite/mina */
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 0 20px;
+        }
+
+        .btn-main {
+            background: var(--accent);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .section { padding: 80px 10%; }
+        
+        .grid-beneficios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .card:hover { transform: translateY(-10px); }
+        .card i { font-size: 40px; color: var(--accent); margin-bottom: 20px; }
+
+        footer { background: var(--primary); color: white; padding: 40px 10%; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <nav style="display: flex; justify-content: space-between; padding: 20px 10%; background: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="logo"><strong>GEO</strong>-SCAN</div>
+        <div class="menu">
+            <a href="#sobre" style="margin-left: 20px; text-decoration: none; color: var(--primary);">Sobre</a>
+            <a href="#beneficios" style="margin-left: 20px; text-decoration: none; color: var(--primary);">Benefícios</a>
+            <a href="#contacto" style="margin-left: 20px; text-decoration: none; color: var(--primary);">Contacto</a>
+            <a href="pages/dashboard-inicio.html" class="btn-main" style="margin-left: 20px; padding: 10px 20px;">Entrar</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Inovação Satelital para o Futuro da Mineração</h1>
+            <p style="font-size: 1.2rem; margin-bottom: 30px;">Identificando jazidas de kimberlito na Lunda Sul através de análise espectral avançada.</p>
+            <a href="#sobre" class="btn-main">Saiba Mais</a>
+        </div>
+    </header>
+
+    <section id="sobre" class="section">
+        <h2 style="text-align: center;">Sobre o GEO-SCAN</h2>
+        <div style="display: flex; align-items: center; gap: 50px; margin-top: 40px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <p>O <strong>GEO-SCAN</strong> é um sistema digital de monitoramento e geolocalização de zonas mineiras que utiliza o satélite <strong>Sentinel-2 (Programa Copernicus)</strong>.</p>
+                <p>Focado na província da Lunda Sul, o projecto automatiza a identificação de áreas com potencial geológico, reduzindo custos de prospecção e o impacto ambiental da exploração desordenada.</p>
+            </div>
+            <div style="flex: 1; min-width: 300px; background: #eee; height: 300px; border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-satellite" style="font-size: 100px; color: #ccc;"></i>
+            </div>
+        </div>
+    </section>
+
+    <section id="beneficios" class="section" style="background: #f4f7f6;">
+        <h2 style="text-align: center;">Porquê usar o GEO-SCAN?</h2>
+        <div class="grid-beneficios">
+            <div class="card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Precisão Analítica</h3>
+                <p>Uso de bandas multiespectrais para detectar assinaturas minerais específicas.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-leaf"></i>
+                <h3>Sustentabilidade</h3>
+                <p>Minimiza a necessidade de intervenções físicas em áreas sem potencial real.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>Monitoramento em Tempo Real</h3>
+                <p>Dados actualizados directamente via API para a sua dashboard interativa.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacto" class="section">
+        <h2 style="text-align: center;">Fale Connosco</h2>
+        <div style="max-width: 600px; margin: 40px auto; text-align: center;">
+            <p><i class="fas fa-envelope"></i> contacto@geoscan.ao</p>
+            <p><i class="fas fa-location-dot"></i> Colégio Árvore da Felicidade, Luanda</p>
+            <p><i class="fas fa-users"></i> Projecto desenvolvido por: Ambrósio, Cristiano, Ditutala, Edmilson, Isabel e Mechack.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 GEO-SCAN - Todos os direitos reservados.</p>
+        <p>Curso de Electrónica e Telecomunicações</p>
+    </footer>
+
+</body>
+</html>

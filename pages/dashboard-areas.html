@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>GEO-SCAN - Áreas Prospectadas</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* Estilos específicos para Áreas Prospectadas */
+        .areas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        
+        .search-box {
+            flex: 2;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 10px 10px 35px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243,156,18,0.1);
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            min-width: 140px;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #f39c12;
+        }
+        
+        .export-btn {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+        }
+        
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-banner-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-banner-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-banner-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(243,156,18,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat-banner-icon i {
+            font-size: 20px;
+            color: #f39c12;
+        }
+        
+        .stat-banner-info h3 {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 3px;
+        }
+        
+        .stat-banner-info .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        
+        .areas-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .area-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+        
+        .area-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .area-card.high {
+            border-left-color: #27ae60;
+        }
+        
+        .area-card.medium {
+            border-left-color: #f39c12;
+        }
+        
+        .area-card.low {
+            border-left-color: #e74c3c;
+        }
+        
+        .area-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .area-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .area-name i {
+            color: #f39c12;
+        }
+        
+        .area-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .status-confirmed {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+        
+        .status-analysis {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+        }
+        
+        .status-identified {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .area-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 12px 0;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .detail-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        
+        .detail-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .detail-value i {
+            color: #f39c12;
+            width: 14px;
+            font-size: 11px;
+        }
+        
+        .probability-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .area-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .btn-details {
+            flex: 1;
+            padding: 8px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #1a2639;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-details:hover {
+            background: #e2e8f0;
+        }
+        
+        .btn-select {
+            flex: 1;
+            padding: 8px;
+            background: #f39c12;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-select:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+        
+        .btn-select.selected {
+            background: #e74c3c;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .page-btn {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+        
+        .page-btn:hover {
+            background: #f39c12;
+            color: white;
+            border-color: #f39c12;
+        }
+        
+        .page-btn.active {
+            background: #f39c12;
+            color: white;
+            border-color: #f39c12;
+        }
+        
+        .map-preview {
+            height: 250px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            margin-top: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        #preview-map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .no-results {
+            grid-column: span 2;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            color: #64748b;
+        }
+        
+        .no-results i {
+            font-size: 40px;
+            color: #e2e8f0;
+            margin-bottom: 10px;
+        }
+        
+        .selected-areas {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .selected-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .selected-header h3 {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .selected-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .selected-tag {
+            background: #f8fafc;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .selected-tag i {
+            color: #f39c12;
+            cursor: pointer;
+        }
+        
+        .selected-tag i:hover {
+            color: #e74c3c;
+        }
+        
+        .btn-clear {
+            padding: 5px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-clear:hover {
+            background: #c0392b;
+        }
+        
+        @media (max-width: 991px) {
+            .areas-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-banner {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 575px) {
+            .search-filters {
+                flex-direction: column;
+            }
+            
+            .filter-select {
+                width: 100%;
+            }
+            
+            .stats-banner {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard-inicio.html" class="logo">
+                <i class="fas fa-gem logo-icon logo-glow"></i>
+                <h2>GEO<span>-SCAN</span></h2>
+            </a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="dashboard-inicio.html"><i class="fas fa-home"></i><span>Início</span></a></li>
+                    <li><a href="dashboard-fluxo.html"><i class="fas fa-chart-line"></i><span>Fluxo de Dados</span></a></li>
+                    <li><a href="dashboard-analise.html"><i class="fas fa-chart-bar"></i><span>Análise de Mineração</span></a></li>
+                    <li><a href="dashboard-sentinel.html"><i class="fas fa-satellite"></i><span>Sentinel-2</span></a></li>
+                    <li class="active"><a href="dashboard-areas.html"><i class="fas fa-map-marker-alt"></i><span>Áreas Prospectadas</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo">
+                    <i class="fas fa-user-circle"></i>
+                    <div><p>Carregando...</p><span>Online</span></div>
+                </div>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                    <h1>Áreas Prospectadas</h1>
+                </div>
+                <div class="header-right">
+                    <div class="datetime"><i class="far fa-clock"></i><span id="current-time"></span></div>
+                    <div class="weather"><i class="fas fa-thermometer-half"></i><span>24°C</span></div>
+                    <div class="location"><i class="fas fa-map-pin"></i><span>Lunda Sul</span></div>
+                </div>
+            </header>
+
+            <!-- Busca e Filtros -->
+            <div class="areas-header">
+                <div class="search-filters">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar área por nome, província..." onkeyup="filtrarAreas()">
+                    </div>
+                    
+                    <select class="filter-select" id="provinciaFilter" onchange="filtrarAreas()">
+                        <option value="todas">Todas províncias</option>
+                        <option value="Lunda Sul">Lunda Sul</option>
+                        <option value="Lunda Norte">Lunda Norte</option>
+                        <option value="Malange">Malange</option>
+                        <option value="Bié">Bié</option>
+                    </select>
+                    
+                    <select class="filter-select" id="statusFilter" onchange="filtrarAreas()">
+                        <option value="todos">Todos status</option>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Em análise">Em análise</option>
+                        <option value="Identificada">Identificada</option>
+                    </select>
+                    
+                    <select class="filter-select" id="tipoFilter" onchange="filtrarAreas()">
+                        <option value="todos">Todos tipos</option>
+                        <option value="Kimberlito">Kimberlito</option>
+                        <option value="Aluvião">Aluvião</option>
+                    </select>
+                </div>
+                
+                <button class="export-btn" onclick="exportarAreas()">
+                    <i class="fas fa-download"></i> Exportar CSV
+                </button>
+            </div>
+
+            <!-- Banner de Estatísticas -->
+            <div class="stats-banner">
+                <div class="stat-banner-item">
+                    <div class="stat-banner-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="stat-banner-info">
+                        <h3>Total Áreas</h3>
+                        <div class="value" id="totalAreas">38</div>
+                    </div>
+                </div>
+                
+                <div class="stat-banner-item">
+                    <div class="stat-banner-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-banner-info">
+                        <h3>Confirmadas</h3>
+                        <div class="value" id="totalConfirmadas">18</div>
+                    </div>
+                </div>
+                
+                <div class="stat-banner-item">
+                    <div class="stat-banner-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-banner-info">
+                        <h3>Em Análise</h3>
+                        <div class="value" id="totalAnalise">12</div>
+                    </div>
+                </div>
+                
+                <div class="stat-banner-item">
+                    <div class="stat-banner-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-banner-info">
+                        <h3>Prob. Média</h3>
+                        <div class="value" id="probMedia">87%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Áreas -->
+            <div class="areas-grid" id="areasGrid">
+                <!-- Áreas serão inseridas via JavaScript -->
+            </div>
+
+            <!-- Paginação -->
+            <div class="pagination" id="pagination"></div>
+
+            <!-- Áreas Selecionadas -->
+            <div class="selected-areas" id="selectedAreas">
+                <div class="selected-header">
+                    <h3><i class="fas fa-check-circle" style="color: #f39c12;"></i> Áreas Selecionadas</h3>
+                    <button class="btn-clear" onclick="limparSelecao()">
+                        <i class="fas fa-trash"></i> Limpar
+                    </button>
+                </div>
+                <div class="selected-list" id="selectedList">
+                    <p style="color: #64748b; font-size: 12px;">Nenhuma área selecionada</p>
+                </div>
+            </div>
+
+            <!-- Mapa de Preview -->
+            <div class="map-preview">
+                <div id="preview-map"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../auth.js"></script>
+    <script>
+        // ========== DADOS REAIS DAS ÁREAS ==========
+        const areasData = [
+            { 
+                id: 1,
+                nome: 'Catoca', 
+                provincia: 'Lunda Sul', 
+                lat: -9.3941, 
+                lng: 20.3128, 
+                prob: 98, 
+                tipo: 'Kimberlito',
+                status: 'Confirmada',
+                teor: 14.2,
+                area: 1245,
+                descoberta: 1993,
+                profundidade: 350
+            },
+            { 
+                id: 2,
+                nome: 'Lulo', 
+                provincia: 'Lunda Norte', 
+                lat: -7.9167, 
+                lng: 20.1667, 
+                prob: 92, 
+                tipo: 'Kimberlito',
+                status: 'Confirmada',
+                teor: 13.5,
+                area: 1560,
+                descoberta: 2005,
+                profundidade: 280
+            },
+            { 
+                id: 3,
+                nome: 'Luaxe', 
+                provincia: 'Lunda Sul', 
+                lat: -9.5167, 
+                lng: 20.3167, 
+                prob: 87, 
+                tipo: 'Kimberlito',
+                status: 'Em análise',
+                teor: 11.7,
+                area: 750,
+                descoberta: 2013,
+                profundidade: 420
+            },
+            { 
+                id: 4,
+                nome: 'Camatchia', 
+                provincia: 'Lunda Norte', 
+                lat: -9.3833, 
+                lng: 20.3667, 
+                prob: 95, 
+                tipo: 'Kimberlito',
+                status: 'Em análise',
+                teor: 12.8,
+                area: 890,
+                descoberta: 2001,
+                profundidade: 310
+            },
+            { 
+                id: 5,
+                nome: 'Somiluana', 
+                provincia: 'Lunda Norte', 
+                lat: -8.2833, 
+                lng: 20.4833, 
+                prob: 82, 
+                tipo: 'Aluvião',
+                status: 'Identificada',
+                teor: 9.8,
+                area: 620,
+                descoberta: 2010,
+                profundidade: 45
+            },
+            { 
+                id: 6,
+                nome: 'Chitotolo', 
+                provincia: 'Lunda Sul', 
+                lat: -9.6333, 
+                lng: 20.3833, 
+                prob: 76, 
+                tipo: 'Kimberlito',
+                status: 'Identificada',
+                teor: 8.5,
+                area: 480,
+                descoberta: 2015,
+                profundidade: 290
+            },
+            { 
+                id: 7,
+                nome: 'Fucauma', 
+                provincia: 'Lunda Norte', 
+                lat: -9.2667, 
+                lng: 20.0667, 
+                prob: 71, 
+                tipo: 'Aluvião',
+                status: 'Identificada',
+                teor: 7.2,
+                area: 350,
+                descoberta: 2018,
+                profundidade: 30
+            },
+            { 
+                id: 8,
+                nome: 'Calonda', 
+                provincia: 'Lunda Norte', 
+                lat: -8.4667, 
+                lng: 20.0333, 
+                prob: 64, 
+                tipo: 'Kimberlito',
+                status: 'Identificada',
+                teor: 6.8,
+                area: 420,
+                descoberta: 2019,
+                profundidade: 210
+            }
+        ];
+
+        // ========== VARIÁVEIS GLOBAIS ==========
+        let map = null;
+        let areasFiltradas = [...areasData];
+        let areasSelecionadas = [];
+        let paginaAtual = 1;
+        const itemsPorPagina = 4;
+
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('geoscan_user') || '{"nome":"Administrador"}');
+            document.querySelector('#userInfo p').textContent = user.nome;
+            
+            atualizarRelogio();
+            setInterval(atualizarRelogio, 1000);
+            
+            carregarAreas();
+            atualizarEstatisticas();
+            inicializarPreviewMap();
+        });
+
+        // ========== CARREGAR ÁREAS NO GRID ==========
+        function carregarAreas() {
+            const grid = document.getElementById('areasGrid');
+            const inicio = (paginaAtual - 1) * itemsPorPagina;
+            const fim = inicio + itemsPorPagina;
+            const areasPagina = areasFiltradas.slice(inicio, fim);
+            
+            if (areasPagina.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>Nenhuma área encontrada</h3>
+                        <p style="font-size: 13px;">Tente ajustar os filtros</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = areasPagina.map(area => {
+                let statusClass = '';
+                let statusIcon = '';
+                
+                switch(area.status) {
+                    case 'Confirmada':
+                        statusClass = 'status-confirmed';
+                        statusIcon = 'fa-check-circle';
+                        break;
+                    case 'Em análise':
+                        statusClass = 'status-analysis';
+                        statusIcon = 'fa-hourglass-half';
+                        break;
+                    case 'Identificada':
+                        statusClass = 'status-identified';
+                        statusIcon = 'fa-map-marker-alt';
+                        break;
+                }
+                
+                let probClass = '';
+                if (area.prob >= 90) probClass = 'high';
+                else if (area.prob >= 70) probClass = 'medium';
+                else probClass = 'low';
+                
+                const selecionado = areasSelecionadas.some(a => a.id === area.id);
+                
+                return `
+                    <div class="area-card ${probClass}" data-id="${area.id}" onclick="selecionarCard(${area.id})">
+                        <div class="area-header">
+                            <div class="area-name">
+                                <i class="fas fa-map-pin"></i>
+                                ${area.nome}
+                            </div>
+                            <span class="area-status ${statusClass}">
+                                <i class="fas ${statusIcon}"></i> ${area.status}
+                            </span>
+                        </div>
+                        
+                        <div class="area-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Província</span>
+                                <span class="detail-value">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                    ${area.provincia}
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Coordenadas</span>
+                                <span class="detail-value">
+                                    <i class="fas fa-globe-africa"></i>
+                                    ${area.lat.toFixed(4)}°, ${area.lng.toFixed(4)}°
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tipo</span>
+                                <span class="detail-value">
+                                    <i class="fas fa-cube"></i>
+                                    ${area.tipo}
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Teor</span>
+                                <span class="detail-value">
+                                    <i class="fas fa-weight-hanging"></i>
+                                    ${area.teor} ct/t
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="probability-bar">
+                            <div class="probability-fill" style="width: ${area.prob}%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 5px 0 10px;">
+                            <span style="font-size: 11px; color: #64748b;">Probabilidade</span>
+                            <span style="font-size: 13px; font-weight: 600; color: #f39c12;">${area.prob}%</span>
+                        </div>
+                        
+                        <div class="area-actions" onclick="event.stopPropagation()">
+                            <button class="btn-details" onclick="verDetalhes(${area.id})">
+                                <i class="fas fa-info-circle"></i> Detalhes
+                            </button>
+                            ${selecionado ? 
+                                `<button class="btn-select selected" onclick="removerSelecao(${area.id})">
+                                    <i class="fas fa-times"></i> Remover
+                                </button>` :
+                                `<button class="btn-select" onclick="selecionarArea(${area.id})">
+                                    <i class="fas fa-check"></i> Selecionar
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            atualizarPaginacao();
+        }
+
+        // ========== SELEÇÃO DE CARD ==========
+        function selecionarCard(id) {
+            const area = areasData.find(a => a.id === id);
+            if (area && map) {
+                map.setView([area.lat, area.lng], 12);
+                
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+                
+                L.marker([area.lat, area.lng]).addTo(map)
+                    .bindPopup(`<b>${area.nome}</b><br>Prob: ${area.prob}%<br>Teor: ${area.teor} ct/t`)
+                    .openPopup();
+            }
+        }
+
+        // ========== VER DETALHES ==========
+        function verDetalhes(id) {
+            const area = areasData.find(a => a.id === id);
+            selecionarCard(id);
+            
+            // Mostrar detalhes em um alerta melhorado
+            const detalhes = `
+                📍 Área: ${area.nome}
+                📌 Província: ${area.provincia}
+                🎯 Probabilidade: ${area.prob}%
+                💎 Teor: ${area.teor} ct/t
+                📏 Área: ${area.area} hectares
+                📅 Descoberta: ${area.descoberta}
+                ⛰️ Profundidade: ${area.profundidade}m
+                🗺️ Coordenadas: ${area.lat.toFixed(4)}°, ${area.lng.toFixed(4)}°
+            `;
+            
+            mostrarNotificacao(`Detalhes de ${area.nome}`, 3000);
+            console.log(detalhes);
+        }
+
+        // ========== SELEÇÃO DE ÁREA ==========
+        function selecionarArea(id) {
+            const area = areasData.find(a => a.id === id);
+            
+            if (!areasSelecionadas.some(a => a.id === id)) {
+                areasSelecionadas.push(area);
+                atualizarListaSelecionadas();
+                carregarAreas();
+                mostrarNotificacao(`${area.nome} adicionada à seleção`, 2000);
+            }
+        }
+
+        // ========== REMOVER SELEÇÃO ==========
+        function removerSelecao(id) {
+            const area = areasData.find(a => a.id === id);
+            areasSelecionadas = areasSelecionadas.filter(a => a.id !== id);
+            atualizarListaSelecionadas();
+            carregarAreas();
+            mostrarNotificacao(`${area.nome} removida da seleção`, 2000);
+        }
+
+        // ========== LIMPAR SELEÇÃO ==========
+        function limparSelecao() {
+            areasSelecionadas = [];
+            atualizarListaSelecionadas();
+            carregarAreas();
+            mostrarNotificacao('Seleção limpa', 2000);
+        }
+
+        // ========== ATUALIZAR LISTA DE SELECIONADAS ==========
+        function atualizarListaSelecionadas() {
+            const list = document.getElementById('selectedList');
+            
+            if (areasSelecionadas.length === 0) {
+                list.innerHTML = '<p style="color: #64748b; font-size: 12px;">Nenhuma área selecionada</p>';
+                return;
+            }
+            
+            list.innerHTML = areasSelecionadas.map(area => `
+                <div class="selected-tag">
+                    <i class="fas fa-map-pin" style="color: #f39c12;"></i>
+                    ${area.nome} (${area.prob}%)
+                    <i class="fas fa-times" onclick="removerSelecao(${area.id})"></i>
+                </div>
+            `).join('');
+        }
+
+        // ========== FILTRAR ÁREAS ==========
+        function filtrarAreas() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const provincia = document.getElementById('provinciaFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const tipo = document.getElementById('tipoFilter').value;
+            
+            areasFiltradas = areasData.filter(area => {
+                const matchSearch = search === '' || 
+                    area.nome.toLowerCase().includes(search) ||
+                    area.provincia.toLowerCase().includes(search);
+                
+                const matchProvincia = provincia === 'todas' || area.provincia === provincia;
+                const matchStatus = status === 'todos' || area.status === status;
+                const matchTipo = tipo === 'todos' || area.tipo === tipo;
+                
+                return matchSearch && matchProvincia && matchStatus && matchTipo;
+            });
+            
+            paginaAtual = 1;
+            carregarAreas();
+            atualizarEstatisticas();
+        }
+
+        // ========== ATUALIZAR ESTATÍSTICAS ==========
+        function atualizarEstatisticas() {
+            document.getElementById('totalAreas').textContent = areasFiltradas.length;
+            document.getElementById('totalConfirmadas').textContent = 
+                areasFiltradas.filter(a => a.status === 'Confirmada').length;
+            document.getElementById('totalAnalise').textContent = 
+                areasFiltradas.filter(a => a.status === 'Em análise').length;
+            
+            const media = areasFiltradas.reduce((acc, a) => acc + a.prob, 0) / areasFiltradas.length;
+            document.getElementById('probMedia').textContent = Math.round(media || 0) + '%';
+        }
+
+        // ========== PAGINAÇÃO ==========
+        function mudarPagina(direcao) {
+            const totalPaginas = Math.ceil(areasFiltradas.length / itemsPorPagina);
+            
+            if (direcao === 'anterior' && paginaAtual > 1) {
+                paginaAtual--;
+            } else if (direcao === 'proxima' && paginaAtual < totalPaginas) {
+                paginaAtual++;
+            } else if (typeof direcao === 'number') {
+                paginaAtual = direcao;
+            }
+            
+            carregarAreas();
+        }
+
+        // ========== ATUALIZAR PAGINAÇÃO ==========
+        function atualizarPaginacao() {
+            const totalPaginas = Math.ceil(areasFiltradas.length / itemsPorPagina);
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPaginas <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let html = `<button class="page-btn" onclick="mudarPagina('anterior')"><i class="fas fa-chevron-left"></i></button>`;
+            
+            for (let i = 1; i <= totalPaginas; i++) {
+                html += `<button class="page-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
+            }
+            
+            html += `<button class="page-btn" onclick="mudarPagina('proxima')"><i class="fas fa-chevron-right"></i></button>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        // ========== INICIALIZAR MAPA DE PREVIEW ==========
+        function inicializarPreviewMap() {
+            map = L.map('preview-map').setView([-9.3941, 20.3128], 6);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            
+            // Adicionar marcadores de todas as áreas
+            areasData.forEach(area => {
+                const cor = area.prob >= 90 ? '#27ae60' : (area.prob >= 70 ? '#f39c12' : '#e74c3c');
+                
+                L.circleMarker([area.lat, area.lng], {
+                    radius: area.prob / 10,
+                    color: cor,
+                    weight: 2,
+                    fillColor: cor,
+                    fillOpacity: 0.6
+                }).addTo(map).bindPopup(`
+                    <b>${area.nome}</b><br>
+                    Prob: ${area.prob}%<br>
+                    Status: ${area.status}
+                `);
+            });
+        }
+
+        // ========== EXPORTAR ÁREAS ==========
+        function exportarAreas() {
+            const dados = areasFiltradas.map(a => ({
+                Nome: a.nome,
+                Província: a.provincia,
+                Latitude: a.lat,
+                Longitude: a.lng,
+                Probabilidade: a.prob + '%',
+                Tipo: a.tipo,
+                Status: a.status,
+                Teor: a.teor + ' ct/t',
+                Área_hectares: a.area,
+                Descoberta: a.descoberta
+            }));
+            
+            const csv = [
+                Object.keys(dados[0]).join(','),
+                ...dados.map(row => Object.values(row).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `areas-prospectadas-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            mostrarNotificacao('Exportação concluída!', 2000);
+        }
+
+        // ========== RELÓGIO ==========
+        function atualizarRelogio() {
+            document.getElementById('current-time').textContent = new Date().toLocaleTimeString('pt-PT');
+        }
+
+        // ========== NOTIFICAÇÃO ==========
+        function mostrarNotificacao(msg, tempo = 2000) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), tempo);
+        }
+
+        // ========== TOGGLE SIDEBAR ==========
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // ========== LOGOUT ==========
+        function logout() {
+            localStorage.removeItem('geoscan_user');
+            window.location.href = '../index.html';
+        }
+
+        // ========== AJUSTAR MAPA AO REDIMENSIONAR ==========
+        window.addEventListener('resize', () => {
+            if (map) setTimeout(() => map.invalidateSize(), 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>GEO-SCAN - Sentinel-2</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos específicos para o Sentinel-2 */
+        .satellite-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .control-group select {
+            flex: 2;
+            min-width: 180px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .control-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-analyze {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-analyze:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243,156,18,0.3);
+        }
+        
+        .btn-update {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-update:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .band-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .band-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .band-item:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        
+        .band-item.active {
+            background: #f39c12;
+            color: white;
+            border-color: #e67e22;
+        }
+        
+        .band-item .band-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .band-item .band-desc {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        
+        .satellite-image-container {
+            background: #0f172a;
+            height: 450px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        #satellite-map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .image-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            z-index: 10;
+            border-left: 4px solid #f39c12;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            min-width: 220px;
+        }
+        
+        .image-overlay p {
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+        
+        .image-overlay i {
+            color: #f39c12;
+            width: 18px;
+        }
+        
+        .coordinates-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 12px;
+            z-index: 10;
+            border-left: 4px solid #3498db;
+            font-size: 12px;
+        }
+        
+        .coordinates-overlay p {
+            margin: 3px 0;
+        }
+        
+        .download-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .download-btn:hover {
+            background: #f39c12;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-box .label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-box .value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #f39c12;
+            margin: 8px 0 3px;
+        }
+        
+        .stat-box .unit {
+            font-size: 11px;
+            color: #64748b;
+        }
+        
+        /* Ajustes para os gráficos */
+        .chart-container {
+            height: 200px !important;
+            position: relative;
+            margin-bottom: 5px;
+        }
+        
+        .chart-wrapper {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .chart-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chart-header h3 i {
+            color: #f39c12;
+            font-size: 16px;
+        }
+        
+        .chart-labels {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 5px;
+            color: #64748b;
+            font-size: 10px;
+        }
+        
+        .band-table {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--shadow-sm);
+            margin-top: 20px;
+        }
+        
+        .band-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .band-table th {
+            text-align: left;
+            padding: 8px;
+            background: #f8fafc;
+            color: #1a2639;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        .band-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+        }
+        
+        .reflectance-bar {
+            height: 16px;
+            background: linear-gradient(90deg, #f39c12 0%, #f39c12 var(--percent), #e2e8f0 var(--percent));
+            border-radius: 8px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .reflectance-bar::after {
+            content: attr(data-value);
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 9px;
+            color: #1a2639;
+        }
+        
+        @media (max-width: 991px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 575px) {
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .band-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-overlay {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            
+            .coordinates-overlay {
+                position: relative;
+                bottom: 0;
+                right: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard-inicio.html" class="logo">
+                <i class="fas fa-gem logo-icon logo-glow"></i>
+                <h2>GEO<span>-SCAN</span></h2>
+            </a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="dashboard-inicio.html"><i class="fas fa-home"></i><span>Início</span></a></li>
+                    <li><a href="dashboard-fluxo.html"><i class="fas fa-chart-line"></i><span>Fluxo de Dados</span></a></li>
+                    <li><a href="dashboard-analise.html"><i class="fas fa-chart-bar"></i><span>Análise de Mineração</span></a></li>
+                    <li class="active"><a href="dashboard-sentinel.html"><i class="fas fa-satellite"></i><span>Sentinel-2</span></a></li>
+                    <li><a href="dashboard-areas.html"><i class="fas fa-map-marker-alt"></i><span>Áreas Prospectadas</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo">
+                    <i class="fas fa-user-circle"></i>
+                    <div><p>Carregando...</p><span>Online</span></div>
+                </div>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                    <h1>Imagens Sentinel-2</h1>
+                </div>
+                <div class="header-right">
+                    <div class="datetime"><i class="far fa-clock"></i><span id="current-time"></span></div>
+                    <div class="weather"><i class="fas fa-thermometer-half"></i><span>24°C</span></div>
+                    <div class="location"><i class="fas fa-map-pin"></i><span>Lunda Sul</span></div>
+                </div>
+            </header>
+
+            <!-- Controles do Satélite -->
+            <div class="satellite-controls">
+                <div class="control-group">
+                    <select id="bandSelect">
+                        <option value="truecolor">True Color (B4,B3,B2)</option>
+                        <option value="falsecolor">False Color (B8,B4,B3)</option>
+                        <option value="ndvi">NDVI - Índice de Vegetação</option>
+                        <option value="mineral">Índice Mineral</option>
+                        <option value="swir">SWIR - Infravermelho de Ondas Curtas</option>
+                    </select>
+                    
+                    <select id="areaSelect">
+                        <option value="catoca">Catoca - Lunda Sul</option>
+                        <option value="lulo">Lulo - Lunda Norte</option>
+                        <option value="luaxe">Luaxe - Lunda Sul</option>
+                        <option value="camatchia">Camatchia - Lunda Norte</option>
+                        <option value="somiluana">Somiluana - Lunda Norte</option>
+                    </select>
+                    
+                    <button class="btn-analyze" onclick="analisarImagem()">
+                        <i class="fas fa-search"></i> Analisar
+                    </button>
+                    
+                    <button class="btn-update" onclick="atualizarImagem()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+                
+                <!-- Seletor de Bandas Rápidas -->
+                <div class="band-selector" id="bandSelector">
+                    <div class="band-item active" onclick="selecionarBanda('B2', this)">
+                        <div class="band-name">Banda 2</div>
+                        <div class="band-desc">Azul - 490nm</div>
+                    </div>
+                    <div class="band-item" onclick="selecionarBanda('B3', this)">
+                        <div class="band-name">Banda 3</div>
+                        <div class="band-desc">Verde - 560nm</div>
+                    </div>
+                    <div class="band-item" onclick="selecionarBanda('B4', this)">
+                        <div class="band-name">Banda 4</div>
+                        <div class="band-desc">Vermelho - 665nm</div>
+                    </div>
+                    <div class="band-item" onclick="selecionarBanda('B8', this)">
+                        <div class="band-name">Banda 8</div>
+                        <div class="band-desc">IR - 842nm</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Imagem de Satélite -->
+            <div class="satellite-image-container">
+                <div id="satellite-map"></div>
+                
+                <!-- Overlay de Informações -->
+                <div class="image-overlay" id="imageOverlay">
+                    <p><i class="fas fa-calendar"></i> <span id="dataImagem">17/02/2026 - 09:45 UTC</span></p>
+                    <p><i class="fas fa-cloud"></i> <span id="coberturaNuvens">Cobertura de nuvens: 12%</span></p>
+                    <p><i class="fas fa-sun"></i> <span id="anguloSolar">Ângulo solar: 45°</span></p>
+                    <p><i class="fas fa-satellite"></i> <span id="sateliteInfo">Sentinel-2 L2A</span></p>
+                </div>
+                
+                <!-- Coordenadas -->
+                <div class="coordinates-overlay" id="coordinatesOverlay">
+                    <p><i class="fas fa-map-marker-alt"></i> Lat: <span id="coordenadaLat">-9.3941°</span></p>
+                    <p><i class="fas fa-map-marker-alt"></i> Long: <span id="coordenadaLng">20.3128°</span></p>
+                    <p><i class="fas fa-ruler"></i> Resolução: <span id="resolucao">10m/pixel</span></p>
+                </div>
+                
+                <!-- Botão Download -->
+                <button class="download-btn" onclick="downloadImagem()">
+                    <i class="fas fa-download"></i> Baixar
+                </button>
+            </div>
+
+            <!-- Stats Rápidos -->
+            <div class="stats-grid">
+                
+                <div class="stat-box">
+                    <div class="label">Índice Mineral</div>
+                    <div class="value" id="mineralValue">0.82</div>
+                    <div class="unit">Probabilidade</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Cobertura Nuvens</div>
+                    <div class="value" id="nuvensValue">12%</div>
+                    <div class="unit">Visibilidade</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Qualidade</div>
+                    <div class="value" id="qualidadeValue">98%</div>
+                    <div class="unit">Imagem</div>
+                </div>
+            </div>
+
+            
+        </main>
+    </div>
+
+    <script src="../auth.js"></script>
+    <script>
+        // Variáveis globais
+        let map;
+        let spectralChart, indicesChart;
+        let currentArea = 'catoca';
+        let currentBand = 'B2';
+        let interval;
+        
+        // Coordenadas das áreas
+        const areas = {
+            catoca: { lat: -9.3941, lng: 20.3128, nome: 'Catoca', zoom: 14 },
+            lulo: { lat: -7.9167, lng: 20.1667, nome: 'Lulo', zoom: 14 },
+            luaxe: { lat: -9.5167, lng: 20.3167, nome: 'Luaxe', zoom: 14 },
+            camatchia: { lat: -9.3833, lng: 20.3667, nome: 'Camatchia', zoom: 14 },
+            somiluana: { lat: -8.2833, lng: 20.4833, nome: 'Somiluana', zoom: 14 }
+        };
+
+        // Dados espectrais reais
+        const dadosEspectrais = {
+            catoca: { B2: 0.15, B3: 0.22, B4: 0.18, B8: 0.35, B11: 0.28, ndvi: 0.48, mineral: 0.82 },
+            lulo: { B2: 0.14, B3: 0.21, B4: 0.17, B8: 0.33, B11: 0.26, ndvi: 0.45, mineral: 0.79 },
+            luaxe: { B2: 0.16, B3: 0.23, B4: 0.19, B8: 0.36, B11: 0.29, ndvi: 0.47, mineral: 0.77 },
+            camatchia: { B2: 0.13, B3: 0.20, B4: 0.16, B8: 0.32, B11: 0.25, ndvi: 0.44, mineral: 0.75 },
+            somiluana: { B2: 0.12, B3: 0.19, B4: 0.15, B8: 0.30, B11: 0.23, ndvi: 0.42, mineral: 0.72 }
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('geoscan_user') || '{"nome":"Administrador"}');
+            document.querySelector('#userInfo p').textContent = user.nome;
+            
+            atualizarRelogio();
+            setInterval(atualizarRelogio, 1000);
+            
+            inicializarMapa();
+            inicializarGraficos();
+            atualizarDados();
+            
+            // Atualizar dados a cada 10 segundos
+            interval = setInterval(atualizarDados, 10000);
+        });
+
+        // Inicializar mapa
+        function inicializarMapa() {
+            const area = areas[currentArea];
+            
+            map = L.map('satellite-map').setView([area.lat, area.lng], area.zoom);
+            
+            // Camada base (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            
+            // Camada de satélite (ESRI World Imagery)
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© ESRI, Sentinel-2'
+            }).addTo(map);
+            
+            // Marcador da área
+            L.marker([area.lat, area.lng]).addTo(map)
+                .bindPopup(`<b>${area.nome}</b><br>Área de prospecção`)
+                .openPopup();
+            
+            // Círculo de área de interesse (2km)
+            L.circle([area.lat, area.lng], {
+                color: '#f39c12',
+                fillColor: '#f39c12',
+                fillOpacity: 0.1,
+                radius: 2000
+            }).addTo(map);
+        }
+
+        // Inicializar gráficos
+        function inicializarGraficos() {
+            const dados = dadosEspectrais[currentArea];
+            
+            // Gráfico Espectral
+            const ctx1 = document.getElementById('spectralChart').getContext('2d');
+            spectralChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['B2', 'B3', 'B4', 'B8', 'B11'],
+                    datasets: [{
+                        label: 'Reflectância',
+                        data: [dados.B2, dados.B3, dados.B4, dados.B8, dados.B11],
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243,156,18,0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#f39c12',
+                        pointBorderColor: 'white',
+                        pointRadius: 4,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { 
+                            backgroundColor: '#1a2639',
+                            callbacks: {
+                                label: (ctx) => `Reflectância: ${ctx.raw.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 0.5,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { 
+                                stepSize: 0.1,
+                                font: { size: 10 },
+                                callback: (v) => v.toFixed(1)
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Índices
+            const ctx2 = document.getElementById('indicesChart').getContext('2d');
+            indicesChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['NDVI', 'NDWI', 'SAVI', 'EVI', 'MSI'],
+                    datasets: [{
+                        data: [0.48, 0.32, 0.41, 0.38, 0.25],
+                        backgroundColor: ['#f39c12', '#27ae60', '#3498db', '#e74c3c', '#9b59b6'],
+                        borderRadius: 6,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { 
+                            backgroundColor: '#1a2639',
+                            callbacks: {
+                                label: (ctx) => `Valor: ${ctx.raw.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 0.6,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { 
+                                stepSize: 0.1,
+                                font: { size: 10 }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Analisar imagem com banda selecionada
+        function analisarImagem() {
+            const banda = document.getElementById('bandSelect').value;
+            const areaId = document.getElementById('areaSelect').value;
+            const area = areas[areaId];
+            
+            currentArea = areaId;
+            
+            // Centralizar mapa na área
+            map.setView([area.lat, area.lng], area.zoom);
+            
+            // Atualizar informações
+            document.getElementById('sateliteInfo').textContent = `Sentinel-2 L2A - ${banda}`;
+            document.getElementById('coordenadaLat').textContent = area.lat.toFixed(4) + '°';
+            document.getElementById('coordenadaLng').textContent = area.lng.toFixed(4) + '°';
+            
+            // Atualizar gráfico com dados da área
+            const dados = dadosEspectrais[areaId] || dadosEspectrais.catoca;
+            spectralChart.data.datasets[0].data = [dados.B2, dados.B3, dados.B4, dados.B8, dados.B11];
+            spectralChart.update();
+            
+            document.getElementById('ndviValue').textContent = dados.ndvi.toFixed(2);
+            document.getElementById('mineralValue').textContent = dados.mineral.toFixed(2);
+            
+            // Atualizar tabela
+            atualizarTabela(dados);
+            
+            mostrarNotificacao(`Analisando área ${area.nome} com banda ${banda}`);
+        }
+
+        // Atualizar imagem (nova aquisição)
+        function atualizarImagem() {
+            const data = new Date();
+            const dataStr = data.toLocaleDateString('pt-PT') + ' - ' + data.toLocaleTimeString('pt-PT') + ' UTC';
+            
+            document.getElementById('dataImagem').textContent = dataStr;
+            
+            // Gerar valores aleatórios realistas
+            const nuvens = Math.floor(Math.random() * 25);
+            const angulo = Math.floor(35 + Math.random() * 20);
+            
+            document.getElementById('coberturaNuvens').textContent = `Cobertura de nuvens: ${nuvens}%`;
+            document.getElementById('anguloSolar').textContent = `Ângulo solar: ${angulo}°`;
+            document.getElementById('nuvensValue').textContent = nuvens + '%';
+            document.getElementById('qualidadeValue').textContent = (100 - nuvens) + '%';
+            
+            // Pequena animação no mapa
+            map.setZoom(map.getZoom() + 1);
+            setTimeout(() => map.setZoom(map.getZoom() - 1), 500);
+            
+            mostrarNotificacao('Imagem atualizada com sucesso!');
+        }
+
+        // Selecionar banda rápida
+        function selecionarBanda(banda, element) {
+            currentBand = banda;
+            
+            document.querySelectorAll('.band-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            
+            mostrarNotificacao(`Banda ${banda} selecionada`);
+        }
+
+        // Atualizar dados
+        function atualizarDados() {
+            const areaId = document.getElementById('areaSelect').value;
+            const dados = dadosEspectrais[areaId] || dadosEspectrais.catoca;
+            
+            // Pequenas variações para simular dados reais
+            const variacao = 0.95 + Math.random() * 0.1;
+            
+            document.getElementById('ndviValue').textContent = (dados.ndvi * variacao).toFixed(2);
+            document.getElementById('mineralValue').textContent = (dados.mineral * variacao).toFixed(2);
+            
+            // Atualizar gráfico de índices
+            indicesChart.data.datasets[0].data = [
+                (0.48 * variacao).toFixed(2),
+                (0.32 * variacao).toFixed(2),
+                (0.41 * variacao).toFixed(2),
+                (0.38 * variacao).toFixed(2),
+                (0.25 * variacao).toFixed(2)
+            ];
+            indicesChart.update();
+        }
+
+        // Atualizar tabela
+        function atualizarTabela(dados) {
+            const linhas = document.querySelectorAll('#bandasTable tr');
+            const valores = [dados.B2, dados.B3, dados.B4, dados.B8, dados.B11];
+            
+            linhas.forEach((linha, index) => {
+                const barra = linha.querySelector('.reflectance-bar');
+                if (barra) {
+                    const percent = Math.round(valores[index] * 100);
+                    barra.style.setProperty('--percent', percent + '%');
+                    barra.setAttribute('data-value', valores[index].toFixed(2));
+                }
+            });
+        }
+
+        // Download da imagem (simulado)
+        function downloadImagem() {
+            mostrarNotificacao('Preparando download...');
+            setTimeout(() => {
+                const area = areas[currentArea];
+                const a = document.createElement('a');
+                a.href = '#';
+                a.download = `sentinel-2-${area.nome}-${new Date().toISOString().split('T')[0]}.tif`;
+                a.click();
+                mostrarNotificacao('Download iniciado!');
+            }, 1500);
+        }
+
+        // Função do relógio
+        function atualizarRelogio() {
+            document.getElementById('current-time').textContent = new Date().toLocaleTimeString('pt-PT');
+        }
+
+        // Mostrar notificação
+        function mostrarNotificacao(msg) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2000);
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Logout
+        function logout() {
+            clearInterval(interval);
+            localStorage.removeItem('geoscan_user');
+            window.location.href = '../index.html';
+        }
+
+        // Ajustar mapa ao redimensionar
+        window.addEventListener('resize', () => {
+            if (map) setTimeout(() => map.invalidateSize(), 100);
+        });
+    </script>
+</body>
+</html>
