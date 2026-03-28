@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Magnetômetro - GEO-SCAN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .header h1 i {
+            font-size: 32px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            grid-column: 1 / -1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #bee5eb;
+        }
+        
+        .status i {
+            font-size: 16px;
+        }
+        
+        .logs {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-left: 3px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .log-entry.success {
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        
+        .log-entry.error {
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .log-entry.info {
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+        
+        .timestamp {
+            color: #999;
+            font-size: 11px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-magnet"></i>
+                Teste Magnetômetro
+            </h1>
+            <p>Teste de envio e recebimento de dados do sensor magnetômetro</p>
+        </div>
+        
+        <div class="content">
+            <!-- Seção de Status -->
+            <div class="section">
+                <div class="section-title">Status do Backend</div>
+                <button class="btn-primary" onclick="verificarConectividade()">
+                    <i class="fas fa-wifi"></i> Verificar Conectividade
+                </button>
+                <div id="status"></div>
+            </div>
+            
+            <!-- Seção de Envio -->
+            <div class="section">
+                <div class="section-title">Enviar Dados</div>
+                
+                <div class="form-group">
+                    <label for="deviceId">Device ID:</label>
+                    <input type="text" id="deviceId" value="ESP32-001" placeholder="Ex: ESP32-001">
+                </div>
+                
+                <div class="form-group">
+                    <label for="magnetometerValue">Valor Magnetômetro (0-4095):</label>
+                    <input type="number" id="magnetometerValue" min="0" max="4095" value="2048" placeholder="0-4095">
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="valorAleatorio()">
+                        <i class="fas fa-random"></i> Valor Aleatório
+                    </button>
+                    <button class="btn-secondary" onclick="gerarSequencia()">
+                        <i class="fas fa-wave-square"></i> Gerar Sequência
+                    </button>
+                </div>
+                
+                <button class="btn-primary" onclick="enviarNovoMagnetometro()">
+                    <i class="fas fa-paper-plane"></i> Enviar Magnetômetro
+                </button>
+            </div>
+            
+            <!-- Seção de Leitura -->
+            <div class="section">
+                <div class="section-title">Ler Dados</div>
+                
+                <div class="form-group">
+                    <label for="limitRead">Limite de Registros:</label>
+                    <input type="number" id="limitRead" value="10" min="1" max="100">
+                </div>
+                
+                <button class="btn-primary" onclick="buscarDadosMagnetometro()">
+                    <i class="fas fa-download"></i> Buscar Últimos Dados
+                </button>
+            </div>
+            
+            <!-- Seção de Estatísticas -->
+            <div class="section">
+                <div class="section-title">Estatísticas</div>
+                
+                <div class="form-group">
+                    <label for="deviceIdStats">Device ID para Estatísticas:</label>
+                    <input type="text" id="deviceIdStats" value="ESP32-001" placeholder="Ex: ESP32-001">
+                </div>
+                
+                <button class="btn-primary" onclick="buscarEstatisticas()">
+                    <i class="fas fa-chart-bar"></i> Buscar Estatísticas
+                </button>
+            </div>
+            
+            <!-- Logs -->
+            <div class="section">
+                <div class="section-title">Logs</div>
+                <button class="btn-secondary" onclick="limparLogs()" style="width: 100%; margin-bottom: 15px;">
+                    <i class="fas fa-trash"></i> Limpar Logs
+                </button>
+                <div class="logs" id="logs">
+                    <div class="log-entry info">
+                        <span class="timestamp">[PRONTO]</span> Sistema pronto para uso
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'https://geo-scan-backend.vercel.app';
+        
+        function adicionarLog(mensagem, tipo = 'info') {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString('pt-PT');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${tipo}`;
+            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${mensagem}`;
+            logs.appendChild(entry);
+            logs.scrollTop = logs.scrollHeight;
+        }
+        
+        function mostrarStatus(mensagem, tipo = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="status ${tipo}">
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${mensagem}
+            </div>`;
+            adicionarLog(mensagem, tipo);
+        }
+        
+        async function verificarConectividade() {
+            try {
+                mostrarStatus('Verificando conectividade...', 'info');
+                const response = await fetch(`${API_BASE}/magnetometer?limit=1`);
+                if (response.ok) {
+                    mostrarStatus('✅ Backend está online!', 'success');
+                } else {
+                    mostrarStatus('❌ Backend respondeu com erro', 'error');
+                }
+            } catch (error) {
+                mostrarStatus('❌ Backend offline ou indisponível', 'error');
+            }
+        }
+        
+        async function enviarNovoMagnetometro() {
+            const deviceId = document.getElementById('deviceId').value;
+            const value = parseFloat(document.getElementById('magnetometerValue').value);
+            
+            if (!deviceId || isNaN(value)) {
+                mostrarStatus('❌ Preencha todos os campos corretamente', 'error');
+                return;
+            }
+            
+            try {
+                mostrarStatus('Enviando dados...', 'info');
+                const response = await fetch(`${API_BASE}/magnetometer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deviceId, value })
+                });
+                
+                if (response.ok) {
+                    mostrarStatus(`✅ Magnetômetro enviado: ${value}`, 'success');
+                } else {
+                    mostrarStatus('❌ Erro ao enviar dados', 'error');
+                }
+            } catch (error) {
+                mostrarStatus(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+        
+        async function buscarDadosMagnetometro() {
+            const limit = document.getElementById('limitRead').value;
+            
+            try {
+                mostrarStatus('Buscando dados...', 'info');
+                const response = await fetch(`${API_BASE}/magnetometer?limit=${limit}`);
+                const dados = await response.json();
+                
+                if (Array.isArray(dados) && dados.length > 0) {
+                    mostrarStatus(`✅ ${dados.length} registros encontrados`, 'success');
+                    adicionarLog(JSON.stringify(dados, null, 2), 'success');
+                } else {
+                    mostrarStatus('⚠️ Nenhum dado encontrado', 'info');
+                }
+            } catch (error) {
+                mostrarStatus(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+        
+        async function buscarEstatisticas() {
+            const deviceId = document.getElementById('deviceIdStats').value;
+            
+            if (!deviceId) {
+                mostrarStatus('❌ Informe um Device ID', 'error');
+                return;
+            }
+            
+            try {
+                mostrarStatus('Buscando estatísticas...', 'info');
+                const response = await fetch(`${API_BASE}/magnetometer/stats?deviceId=${deviceId}`);
+                const stats = await response.json();
+                
+                if (stats.total) {
+                    mostrarStatus(`✅ Estatísticas de ${deviceId}`, 'success');
+                    adicionarLog(JSON.stringify({
+                        device: deviceId,
+                        total: stats.total,
+                        media: stats.average?.toFixed(2),
+                        minimo: stats.minimum?.toFixed(2),
+                        maximo: stats.maximum?.toFixed(2),
+                        desvPadrao: stats.stdDev?.toFixed(2)
+                    }, null, 2), 'success');
+                } else {
+                    mostrarStatus('⚠️ Nenhum dado para este device', 'info');
+                }
+            } catch (error) {
+                mostrarStatus(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+        
+        function valorAleatorio() {
+            const valor = Math.floor(Math.random() * 4096);
+            document.getElementById('magnetometerValue').value = valor;
+            adicionarLog(`Valor aleatório gerado: ${valor}`, 'info');
+        }
+        
+        function gerarSequencia() {
+            const deviceId = document.getElementById('deviceId').value;
+            mostrarStatus('Gerando sequência de 5 valores...', 'info');
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const valor = Math.floor(Math.random() * 4096);
+                    document.getElementById('magnetometerValue').value = valor;
+                    enviarNovoMagnetometro();
+                }, i * 500);
+            }
+        }
+        
+        function limparLogs() {
+            document.getElementById('logs').innerHTML = '';
+            adicionarLog('Logs limpos', 'info');
+        }
+    </script>
+</body>
+</html>

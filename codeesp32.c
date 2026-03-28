@@ -9,14 +9,15 @@
 // - Backend gera timestamp automaticamente
 
 // --- CONFIGURE AQUI ---
-const char* WIFI_SSID = "M3";
+const char* WIFI_SSID = "GeoScan";
 const char* WIFI_PASS = "1234567890";
 // Backend Vercel com endpoint de vibração
 const char* SERVER_URL = "https://geo-scan-backend.vercel.app/vibration";
 const char* DEVICE_ID = "ESP32-001";
 
 // Pinos
-const int SENSOR_PIN = 34;
+const int SENSOR_PIN = 34;           // Vibração
+const int MAGNETOMETER_PIN = 23;     // Magnetômetro
 const int BUZZER_PIN = 25;
 
 // Intervalos
@@ -48,9 +49,82 @@ void setup() {
   }
 }
 
+// Função para enviar dados de vibração
+void enviarVibracaoDados(int valor) {
+  String url = String(SERVER_URL);
+  Serial.print("POST Vibração -> "); Serial.println(url);
+
+  HTTPClient http;
+  bool okBegin = false;
+
+  if (url.startsWith("https://")) {
+    WiFiClientSecure *secureClient = new WiFiClientSecure();
+    secureClient->setInsecure();
+    okBegin = http.begin(*secureClient, url);
+  } else {
+    okBegin = http.begin(url);
+  }
+
+  if (okBegin) {
+    http.addHeader("Content-Type", "application/json");
+    String payload = "{";
+    payload += "\"deviceId\": \"" + String(DEVICE_ID) + "\",";
+    payload += "\"value\": " + String(valor);
+    payload += "}";
+
+    int code = http.POST(payload);
+    Serial.print("  HTTP: "); Serial.println(code);
+    if (code > 0) {
+      String resp = http.getString();
+      Serial.print("  Resp: "); Serial.println(resp);
+    }
+    http.end();
+  } else {
+    Serial.println("  Falha ao conectar");
+  }
+}
+
+// Função para enviar dados de magnetômetro
+void enviarMagnetometroDados(int valor) {
+  String url = "https://geo-scan-backend.vercel.app/magnetometer";
+  Serial.print("POST Magnetômetro -> "); Serial.println(url);
+
+  HTTPClient http;
+  bool okBegin = false;
+
+  if (url.startsWith("https://")) {
+    WiFiClientSecure *secureClient = new WiFiClientSecure();
+    secureClient->setInsecure();
+    okBegin = http.begin(*secureClient, url);
+  } else {
+    okBegin = http.begin(url);
+  }
+
+  if (okBegin) {
+    http.addHeader("Content-Type", "application/json");
+    String payload = "{";
+    payload += "\"deviceId\": \"" + String(DEVICE_ID) + "\",";
+    payload += "\"value\": " + String(valor);
+    payload += "}";
+
+    int code = http.POST(payload);
+    Serial.print("  HTTP: "); Serial.println(code);
+    if (code > 0) {
+      String resp = http.getString();
+      Serial.print("  Resp: "); Serial.println(resp);
+    }
+    http.end();
+  } else {
+    Serial.println("  Falha ao conectar");
+  }
+}
+
 void loop() {
   int sensorValue = analogRead(SENSOR_PIN);
-  Serial.print("Sensor: "); Serial.println(sensorValue);
+  int magnetometerValue = analogRead(MAGNETOMETER_PIN);
+  
+  Serial.print("Vibração: "); Serial.print(sensorValue);
+  Serial.print(" | Magnetômetro: "); Serial.println(magnetometerValue);
 
   // Buzzer lógico (prototipagem)
   if (sensorValue > 100) {
@@ -66,49 +140,16 @@ void loop() {
   // POST para backend (suporta http ou https)
   if (millis() - lastPostMillis >= POST_INTERVAL_MS) {
     if (WiFi.status() == WL_CONNECTED) {
-      String server = String(SERVER_URL);
-      Serial.print("POST -> "); Serial.println(server);
-
-      HTTPClient http;
-      bool okBegin = false;
-
-      if (server.startsWith("https://")) {
-        // HTTPS: use secure client
-        WiFiClientSecure *secureClient = new WiFiClientSecure();
-        secureClient->setInsecure(); // protótipo: aceita qualquer certificado
-        okBegin = http.begin(*secureClient, server);
-        // Note: http.end() will free internal resources; we allocated secureClient intentionally
-      } else {
-        // HTTP
-        okBegin = http.begin(server);
-      }
-
-      if (okBegin) {
-        http.addHeader("Content-Type", "application/json");
-        String payload = "{";
-        payload += "\"deviceId\": \"" + String(DEVICE_ID) + "\",";
-        payload += "\"value\": " + String(sensorValue);
-        payload += "}";
-        // Timestamp será gerado automaticamente no backend
-
-        int code = http.POST(payload);
-        Serial.print("HTTP code: "); Serial.println(code);
-        if (code > 0) {
-          String resp = http.getString();
-          Serial.print("Resposta: "); Serial.println(resp);
-        } else {
-          Serial.print("Falha POST, erro: "); Serial.println(code);
-        }
-
-        http.end();
-      } else {
-        Serial.println("Falha ao iniciar conexão HTTP/HTTPS");
-      }
+      // 1. Enviar vibração
+      enviarVibracaoDados(sensorValue);
+      
+      // 2. Enviar magnetômetro
+      enviarMagnetometroDados(magnetometerValue);
+      
+      lastPostMillis = millis();
     } else {
       Serial.println("WiFi não conectado, pulando POST");
     }
-
-    lastPostMillis = millis();
   }
 
   delay(100); // evitar loop muito apertado
