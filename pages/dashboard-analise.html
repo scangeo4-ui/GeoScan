@@ -11,7 +11,7 @@
         /* Estilos específicos para Análise de Mineração */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -258,6 +258,423 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Estilos do Botão Iniciar Análise */
+        .btn-iniciar-analise {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(243, 156, 18, 0.2);
+        }
+        
+        .btn-iniciar-analise:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(243, 156, 18, 0.4);
+        }
+        
+        .btn-iniciar-analise:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 38, 57, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            padding: 0;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #1a2639 0%, #2c3e50 100%);
+            color: white;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 4px solid #f39c12;
+        }
+        
+        .modal-header h2 {
+            font-size: 22px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+        
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .btn-modal {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-modal.primary {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .btn-modal.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(243, 156, 18, 0.3);
+        }
+        
+        .btn-modal.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-modal.secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Painel de Análise em Tempo Real */
+        .analise-panel {
+            display: none;
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: calc(100% - 300px);
+            height: 100%;
+            background: white;
+            z-index: 999;
+            overflow-y: auto;
+            margin-left: 300px;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        .analise-panel.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+        
+        .analise-header {
+            background: linear-gradient(135deg, #1a2639 0%, #2c3e50 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f39c12;
+        }
+        
+        .analise-header h2 {
+            margin: 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .analise-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .analise-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .analise-content {
+            flex: 1;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .analise-chart-wrapper {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .analise-chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .analise-chart-title i {
+            font-size: 18px;
+            color: #f39c12;
+        }
+        
+        .analise-chart-container {
+            flex: 1;
+            position: relative;
+            min-height: 300px;
+        }
+        
+        .analise-info {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .analise-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .analise-stat {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .analise-stat-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .analise-stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f39c12;
+        }
+        
+        @media (max-width: 991px) {
+            .analise-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Seção de Descrição e Conclusão */
+        .analise-descricao-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            grid-column: 1 / -1;
+        }
+        
+        .analise-descricao-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .analise-descricao-section h3 i {
+            color: #f39c12;
+            font-size: 18px;
+        }
+        
+        .analise-form-group {
+            margin-bottom: 15px;
+        }
+        
+        .analise-form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .analise-form-group textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        
+        .analise-form-group textarea:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+        
+        .analise-button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        
+        .btn-finalizar {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-finalizar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(243, 156, 18, 0.3);
+        }
+        
+        .btn-cancelar-analise {
+            background: #f0f0f0;
+            color: #333;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancelar-analise:hover {
+            background: #e0e0e0;
+        }
+    
     </style>
 </head>
 <body>
@@ -271,7 +688,6 @@
             <nav class="nav-menu">
                 <ul>
                     <li><a href="dashboard-inicio.html"><i class="fas fa-home"></i><span>Início</span></a></li>
-                    <li><a href="dashboard-fluxo.html"><i class="fas fa-chart-line"></i><span>Fluxo de Dados</span></a></li>
                     <li class="active"><a href="dashboard-analise.html"><i class="fas fa-chart-bar"></i><span>Análise de Mineração</span></a></li>
                     <li><a href="dashboard-sentinel.html"><i class="fas fa-satellite"></i><span>Sentinel-2</span></a></li>
                     <li><a href="dashboard-areas.html"><i class="fas fa-map-marker-alt"></i><span>Áreas Prospectadas</span></a></li>
@@ -297,7 +713,7 @@
                 <div class="header-right">
                     <div class="datetime"><i class="far fa-clock"></i><span id="current-time"></span></div>
                     <div class="weather"><i class="fas fa-thermometer-half"></i><span>24°C</span></div>
-                    <div class="location"><i class="fas fa-map-pin"></i><span>Lunda Sul</span></div>
+                    <div class="location"><i class="fas fa-map-pin"></i><span>Angola</span></div>
                 </div>
             </header>
 
@@ -324,96 +740,31 @@
                         <div class="kpi-icon">
                             <i class="fas fa-gem"></i>
                         </div>
-                        <span class="kpi-label">Produção Estimada</span>
+                        <span class="kpi-label">Nivel de Magnetização</span>
                     </div>
-                    <div class="kpi-value" id="producaoEstimada">45.2k ct</div>
+                    <div class="kpi-value" id="producaoEstimada">85%</div>
                     <div class="kpi-footer">
                         <span class="trend-up"><i class="fas fa-arrow-up"></i> +12.5%</span>
                         <span>este ano</span>
                     </div>
                 </div>
                 
-                <!-- Card 3: Áreas Ativas -->
-                <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-icon">
-                            <i class="fas fa-map-marked-alt"></i>
-                        </div>
-                        <span class="kpi-label">Áreas Ativas</span>
-                    </div>
-                    <div class="kpi-value" id="areasAtivas">23</div>
-                    <div class="kpi-footer">
-                        <span class="trend-up"><i class="fas fa-arrow-up"></i> +3</span>
-                        <span>novas</span>
-                    </div>
-                </div>
                 
-                <!-- Card 4: Investimento -->
-                <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-icon">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <span class="kpi-label">Investimento</span>
-                    </div>
-                    <div class="kpi-value" id="investimento">$ 2.4M</div>
-                    <div class="kpi-footer">
-                        <span class="trend-up"><i class="fas fa-arrow-up"></i> +15%</span>
-                        <span>ROI</span>
-                    </div>
-                </div>
             </div>
 
-            <!-- Gráficos Compactos -->
-            <div class="dashboard-row">
-                <!-- Produção por Mina -->
-                <div class="chart-wrapper">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-chart-bar"></i> Produção por Mina</h3>
-                        <span style="font-size: 11px; color: #64748b;">mil quilates</span>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="producaoChart"></canvas>
-                    </div>
-                    <div class="chart-labels">
-                        <span>Catoca</span><span>Lulo</span><span>Luaxe</span><span>Camatchia</span><span>Somiluana</span>
-                    </div>
-                    <div class="axis-label">Minas em operação</div>
-                </div>
-
-                <!-- Qualidade do Minério (Radar) -->
-                <div class="chart-wrapper">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-chart-pie"></i> Qualidade do Minério</h3>
-                        <select id="minaSelect" onchange="mudarMina()" style="font-size: 11px; padding: 4px;">
-                            <option value="catoca">Catoca</option>
-                            <option value="lulo">Lulo</option>
-                            <option value="luaxe">Luaxe</option>
-                            <option value="camatchia">Camatchia</option>
-                        </select>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="qualidadeChart"></canvas>
-                    </div>
-                    <div class="quality-legend" id="qualidadeLegend">
-                        <div class="quality-item"><span class="quality-dot" style="background: #f39c12;"></span> Dureza: <span id="durezaValor">95%</span></div>
-                        <div class="quality-item"><span class="quality-dot" style="background: #3498db;"></span> Claridade: <span id="claridadeValor">92%</span></div>
-                        <div class="quality-item"><span class="quality-dot" style="background: #27ae60;"></span> Cor: <span id="corValor">94%</span></div>
-                        <div class="quality-item"><span class="quality-dot" style="background: #e74c3c;"></span> Pureza: <span id="purezaValor">96%</span></div>
-                    </div>
-                </div>
+            <!-- Botão Iniciar Análise -->
+            <div style="margin-bottom: 30px;">
+                <button class="btn-iniciar-analise" onclick="abrirModalArea()">
+                    <i class="fas fa-play-circle"></i> Iniciar Análise em Tempo Real
+                </button>
             </div>
 
             
             <!-- Tabela de Desempenho -->
             <div class="dashboard-card">
                 <div class="card-header">
-                    <h3><i class="fas fa-table" style="color: #f39c12;"></i> Desempenho das Minas</h3>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="period-btn active" onclick="mudarPeriodo('semanal', this)">Semanal</button>
-                        <button class="period-btn" onclick="mudarPeriodo('mensal', this)">Mensal</button>
-                        <button class="period-btn" onclick="mudarPeriodo('anual', this)">Anual</button>
-                    </div>
+                    <h3><i class="fas fa-table" style="color: #f39c12;"></i> Historico de Analises</h3>
+                    
                 </div>
                 
                 <div class="table-responsive">
@@ -421,11 +772,9 @@
                         <thead>
                             <tr>
                                 <th>Mina</th>
-                                <th>Produção</th>
-                                <th>Teor (ct/t)</th>
-                                <th>Qualidade</th>
-                                <th>Status</th>
-                                <th>Tendência</th>
+                                <th>Media de Vibração</th>
+                                <th>Media de Magnetização</th>
+                                <th>Conclusão</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaMinas">
@@ -458,6 +807,148 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Modal Seletor de Área -->
+    <div class="modal-overlay" id="modalArea">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-map-marked-alt"></i> Selecionar Área/Região</h2>
+                <button class="modal-close" onclick="fecharModalArea()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="areaSelect">Escolha a Área de Análise:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="areaSelect" onchange="atualizarRegiao()" style="flex: 1;">
+                            <option value="">-- Selecione uma área --</option>
+                            <option value="catoca">Catoca - Lunda Sul</option>
+                            <option value="lulo">Lulo - Lunda Norte</option>
+                            <option value="luaxe">Luaxe - Cuango</option>
+                            <option value="camatchia">Camatchia - Moxico</option>
+                            <option value="somiluana">Somiluana - Bié</option>
+                            <option value="zaire">Zaire - Zaire</option>
+                        </select>
+                        <button onclick="abrirAdicionarArea()" style="padding: 12px 20px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='#e67e22'" onmouseout="this.style.background='#f39c12'">
+                            <i class="fas fa-plus"></i> Nova
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="deviceIdSelect">Selecione o Dispositivo ESP32:</label>
+                    <select id="deviceIdSelect">
+                        <option value="">-- Selecione um device --</option>
+                        <option value="ESP32-001">ESP32-001 - Sensor Principal</option>
+                    </select>
+                </div>
+                
+                <div id="areaInfo" style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none;">
+                    <p><strong>Informações da Área:</strong></p>
+                    <p id="areaDescription" style="margin-bottom: 0; color: #555; font-size: 13px;"></p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn-modal secondary" onclick="fecharModalArea()">Cancelar</button>
+                    <button class="btn-modal primary" onclick="iniciarAnalise()">Iniciar Análise</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel de Análise em Tempo Real -->
+    <div class="analise-panel" id="analisePainel">
+        <div class="analise-header">
+            <h2>
+                <i class="fas fa-chart-line"></i>
+                <span id="analiseTitle">Análise em Tempo Real - Catoca</span>
+            </h2>
+            <button class="analise-close" onclick="fecharAnalise()"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="analise-content">
+            <!-- Gráfico de Vibração -->
+            <div class="analise-chart-wrapper">
+                <div class="analise-chart-title">
+                    <i class="fas fa-wave-square"></i> Vibração (mm/s)
+                </div>
+                <div class="analise-chart-container">
+                    <canvas id="analiseVibracaoChart"></canvas>
+                </div>
+                <div class="analise-info">
+                    <span>Último: <strong id="vibracaoValor">0 mm/s</strong></span>
+                    <span>Atualizado: <strong id="vibracaoTempo">--:--:--</strong></span>
+                </div>
+                <div class="analise-stats">
+                    <div class="analise-stat">
+                        <div class="analise-stat-label">Máximo</div>
+                        <div class="analise-stat-value" id="vibracaoMax">0</div>
+                    </div>
+                    <div class="analise-stat">
+                        <div class="analise-stat-label">Mínimo</div>
+                        <div class="analise-stat-value" id="vibracaoMin">0</div>
+                    </div>
+                    <div class="analise-stat">
+                        <div class="analise-stat-label">Média</div>
+                        <div class="analise-stat-value" id="vibracaoMedia">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráfico de Magnetômetro -->
+            <div class="analise-chart-wrapper">
+                <div class="analise-chart-title">
+                    <i class="fas fa-magnet"></i> Magnetômetro (mT)
+                </div>
+                <div class="analise-chart-container">
+                    <canvas id="analiseMagnetometroChart"></canvas>
+                </div>
+                <div class="analise-info">
+                    <span>Último: <strong id="magnetometroValor">0 mT</strong></span>
+                    <span>Atualizado: <strong id="magnetometroTempo">--:--:--</strong></span>
+                </div>
+                <div class="analise-stats">
+                    <div class="analise-stat">
+                        <div class="analise-stat-label">Máximo</div>
+                        <div class="analise-stat-value" id="magnetometroMax">0</div>
+                    </div>
+                    <div class="analise-stat">
+                        <div class="analise-stat-label">Mínimo</div>
+                        <div class="analise-stat-value" id="magnetometroMin">0</div>
+                    </div>
+                    <div class="analise-stat">
+                        <div class="analise-stat-label">Média</div>
+                        <div class="analise-stat-value" id="magnetometroMedia">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção de Descrição e Conclusão -->
+        <div class="analise-content">
+            <div class="analise-descricao-section">
+                <h3><i class="fas fa-file-alt"></i> Descrição e Conclusão da Análise</h3>
+                
+                <div class="analise-form-group">
+                    <label for="analiseDescricao">Descrição Técnica:</label>
+                    <textarea id="analiseDescricao" placeholder="Descreva o que foi analisado, métodos utilizados, equipamentos e qualquer informação técnica relevante sobre a análise..."></textarea>
+                </div>
+                
+                <div class="analise-form-group">
+                    <label for="analiseConclusao">Conclusão da Análise:</label>
+                    <textarea id="analiseConclusao" placeholder="Registre as conclusões, achados importantes, recomendações e observações finais sobre os dados analisados..."></textarea>
+                </div>
+                
+                <div class="analise-button-group">
+                    <button class="btn-cancelar-analise" onclick="fecharAnalise()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn-finalizar" onclick="finalizarAnalise()">
+                        <i class="fas fa-check-circle"></i> Finalizar Análise
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="../auth.js"></script>
@@ -745,6 +1236,303 @@
         setInterval(() => {
             buscarDadosVibracaoBackend();
         }, 100);
+    </script>
+    
+    <script>
+        // ========================================
+        // MODAL E ANÁLISE EM TEMPO REAL
+        // ========================================
+        
+        const areaDescricoes = {
+            catoca: 'Mina mais produtiva de Angola, localizada em Lunda Sul. Especializada em diamantes de alta qualidade.',
+            lulo: 'Mina em desenvolvimento em Lunda Norte, com grandes reservas estimadas de diamantes.',
+            luaxe: 'Mina localizada no Cuango, em fase de expansão operacional.',
+            camatchia: 'Mina em Moxico, com potencial para mineração de diamantes de qualidade superior.',
+            somiluana: 'Mina localizada em Bié, em fase de desenvolvimento inicial.',
+            zaire: 'Mina no Zaire, com operações em estágio preliminar.'
+        };
+        
+        let analiseAtiva = false;
+        let areaAtual = '';
+        let deviceAtual = '';
+        let vibracaoChart, magnetometroChart;
+        let vibracaoDados = [];
+        let magnetometroDados = [];
+        let ultimoIdVib = null;
+        let ultimoIdMag = null;
+        
+        function abrirModalArea() {
+            document.getElementById('modalArea').classList.add('active');
+        }
+        
+        function fecharModalArea() {
+            document.getElementById('modalArea').classList.remove('active');
+            document.getElementById('areaSelect').value = '';
+            document.getElementById('deviceIdSelect').value = '';
+            document.getElementById('areaInfo').style.display = 'none';
+        }
+        
+        function atualizarRegiao() {
+            const area = document.getElementById('areaSelect').value;
+            const info = document.getElementById('areaInfo');
+            const desc = document.getElementById('areaDescription');
+            
+            if (area) {
+                info.style.display = 'block';
+                desc.textContent = areaDescricoes[area] || 'Informações não disponíveis';
+            } else {
+                info.style.display = 'none';
+            }
+        }
+        
+        function iniciarAnalise() {
+            const area = document.getElementById('areaSelect').value;
+            const device = document.getElementById('deviceIdSelect').value;
+            
+            if (!area || !device) {
+                alert('Por favor, selecione uma área e um dispositivo!');
+                return;
+            }
+            
+            areaAtual = area;
+            deviceAtual = device;
+            analiseAtiva = true;
+            
+            document.getElementById('analiseTitle').textContent = `Análise em Tempo Real - ${area.toUpperCase()}`;
+            document.getElementById('analisePainel').classList.add('active');
+            fecharModalArea();
+            
+            // Limpar dados
+            vibracaoDados = [];
+            magnetometroDados = [];
+            ultimoIdVib = null;
+            ultimoIdMag = null;
+            
+            // Inicializar gráficos
+            inicializarGraficosAnalise();
+            
+            // Começar a atualizar
+            iniciarAtualizacaoAnalise();
+        }
+        
+        function fecharAnalise() {
+            analiseAtiva = false;
+            document.getElementById('analisePainel').classList.remove('active');
+        }
+        
+        function finalizarAnalise() {
+            const descricao = document.getElementById('analiseDescricao').value;
+            const conclusao = document.getElementById('analiseConclusao').value;
+            
+            if (!descricao.trim() || !conclusao.trim()) {
+                alert('Por favor, preencha a descrição e conclusão da análise!');
+                return;
+            }
+            
+            const analiseData = {
+                area: areaAtual,
+                device: deviceAtual,
+                descricao: descricao,
+                conclusao: conclusao,
+                dataFinal: new Date().toISOString(),
+                vibracaoMax: document.getElementById('vibracaoMax').textContent,
+                vibracaoMin: document.getElementById('vibracaoMin').textContent,
+                vibracaoMedia: document.getElementById('vibracaoMedia').textContent,
+                magnetometroMax: document.getElementById('magnetometroMax').textContent,
+                magnetometroMin: document.getElementById('magnetometroMin').textContent,
+                magnetometroMedia: document.getElementById('magnetometroMedia').textContent
+            };
+            
+            console.log('✅ Análise Finalizada:', analiseData);
+            alert('Análise finalizada com sucesso!\n\nÁrea: ' + areaAtual + '\nDevice: ' + deviceAtual);
+            
+            // Limpar campos
+            document.getElementById('analiseDescricao').value = '';
+            document.getElementById('analiseConclusao').value = '';
+            
+            fecharAnalise();
+        }
+        
+        function abrirAdicionarArea() {
+            const novaArea = prompt('Digite o nome da nova área:\n(Exemplo: Benguela - Cubal)');
+            
+            if (novaArea && novaArea.trim()) {
+                const areaKey = novaArea.toLowerCase().replace(/\s+/g, '_');
+                
+                // Adicionar à lista de áreas
+                const select = document.getElementById('areaSelect');
+                const option = document.createElement('option');
+                option.value = areaKey;
+                option.textContent = novaArea;
+                select.appendChild(option);
+                
+                // Adicionar descrição
+                areaDescricoes[areaKey] = `Área adicionada: ${novaArea}`;
+                
+                // Selecionar a nova área
+                select.value = areaKey;
+                atualizarRegiao();
+                
+                console.log('✅ Nova área adicionada:', novaArea);
+            }
+        }
+        
+        function inicializarGraficosAnalise() {
+            // Gráfico de Vibração
+            const ctxVib = document.getElementById('analiseVibracaoChart').getContext('2d');
+            if (vibracaoChart) vibracaoChart.destroy();
+            
+            vibracaoChart = new Chart(ctxVib, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Vibração',
+                        data: [],
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#f39c12'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#1a2639' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de Magnetômetro
+            const ctxMag = document.getElementById('analiseMagnetometroChart').getContext('2d');
+            if (magnetometroChart) magnetometroChart.destroy();
+            
+            magnetometroChart = new Chart(ctxMag, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Magnetômetro',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#1a2639' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+        
+        async function iniciarAtualizacaoAnalise() {
+            const intervalo = setInterval(async () => {
+                if (!analiseAtiva) {
+                    clearInterval(intervalo);
+                    return;
+                }
+                
+                // Buscar vibração
+                const vibDados = await fetchAPI(`${API.endpoints.vibration}?limit=20`);
+                if (vibDados && vibDados.length > 0) {
+                    atualizarGraficoVib(vibDados);
+                }
+                
+                // Buscar magnetômetro
+                const magDados = await fetchAPI('/magnetometer?limit=20');
+                if (magDados && magDados.length > 0) {
+                    atualizarGraficoMag(magDados);
+                }
+            }, 1000); // Atualizar a cada 1 segundo
+        }
+        
+        function atualizarGraficoVib(dados) {
+            const novos = dados.slice().reverse();
+            
+            vibracaoDados = novos.map(d => ({
+                id: d.id,
+                value: parseFloat(d.value),
+                tempo: new Date(d.timestamp)
+            }));
+            
+            const labels = vibracaoDados.map(d => 
+                d.tempo.toLocaleTimeString('pt-PT').split(' ')[0]
+            );
+            const values = vibracaoDados.map(d => d.value);
+            const max = Math.max(...values).toFixed(2);
+            const min = Math.min(...values).toFixed(2);
+            const media = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+            
+            vibracaoChart.data.labels = labels;
+            vibracaoChart.data.datasets[0].data = values;
+            vibracaoChart.update();
+            
+            document.getElementById('vibracaoValor').textContent = values[values.length - 1].toFixed(2) + ' mm/s';
+            document.getElementById('vibracaoTempo').textContent = new Date().toLocaleTimeString('pt-PT');
+            document.getElementById('vibracaoMax').textContent = max;
+            document.getElementById('vibracaoMin').textContent = min;
+            document.getElementById('vibracaoMedia').textContent = media;
+        }
+        
+        function atualizarGraficoMag(dados) {
+            const novos = dados.slice().reverse();
+            
+            magnetometroDados = novos.map(d => ({
+                id: d.id,
+                value: parseFloat(d.value),
+                tempo: new Date(d.timestamp)
+            }));
+            
+            const labels = magnetometroDados.map(d => 
+                d.tempo.toLocaleTimeString('pt-PT').split(' ')[0]
+            );
+            const values = magnetometroDados.map(d => d.value);
+            const max = Math.max(...values).toFixed(2);
+            const min = Math.min(...values).toFixed(2);
+            const media = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+            
+            magnetometroChart.data.labels = labels;
+            magnetometroChart.data.datasets[0].data = values;
+            magnetometroChart.update();
+            
+            document.getElementById('magnetometroValor').textContent = values[values.length - 1].toFixed(2) + ' mT';
+            document.getElementById('magnetometroTempo').textContent = new Date().toLocaleTimeString('pt-PT');
+            document.getElementById('magnetometroMax').textContent = max;
+            document.getElementById('magnetometroMin').textContent = min;
+            document.getElementById('magnetometroMedia').textContent = media;
+        }
     </script>
 </body>
 </html>

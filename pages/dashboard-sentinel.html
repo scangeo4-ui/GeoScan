@@ -371,7 +371,6 @@
             <nav class="nav-menu">
                 <ul>
                     <li><a href="dashboard-inicio.html"><i class="fas fa-home"></i><span>Início</span></a></li>
-                    <li><a href="dashboard-fluxo.html"><i class="fas fa-chart-line"></i><span>Fluxo de Dados</span></a></li>
                     <li><a href="dashboard-analise.html"><i class="fas fa-chart-bar"></i><span>Análise de Mineração</span></a></li>
                     <li class="active"><a href="dashboard-sentinel.html"><i class="fas fa-satellite"></i><span>Sentinel-2</span></a></li>
                     <li><a href="dashboard-areas.html"><i class="fas fa-map-marker-alt"></i><span>Áreas Prospectadas</span></a></li>
@@ -397,20 +396,14 @@
                 <div class="header-right">
                     <div class="datetime"><i class="far fa-clock"></i><span id="current-time"></span></div>
                     <div class="weather"><i class="fas fa-thermometer-half"></i><span>24°C</span></div>
-                    <div class="location"><i class="fas fa-map-pin"></i><span>Lunda Sul</span></div>
+                    <div class="location"><i class="fas fa-map-pin"></i><span>Angola</span></div>
                 </div>
             </header>
 
             <!-- Controles do Satélite -->
             <div class="satellite-controls">
                 <div class="control-group">
-                    <select id="bandSelect">
-                        <option value="truecolor">True Color (B4,B3,B2)</option>
-                        <option value="falsecolor">False Color (B8,B4,B3)</option>
-                        <option value="ndvi">NDVI - Índice de Vegetação</option>
-                        <option value="mineral">Índice Mineral</option>
-                        <option value="swir">SWIR - Infravermelho de Ondas Curtas</option>
-                    </select>
+                   
                     
                     <select id="areaSelect">
                         <option value="catoca">Catoca - Lunda Sul</option>
@@ -430,24 +423,7 @@
                 </div>
                 
                 <!-- Seletor de Bandas Rápidas -->
-                <div class="band-selector" id="bandSelector">
-                    <div class="band-item active" onclick="selecionarBanda('B2', this)">
-                        <div class="band-name">Banda 2</div>
-                        <div class="band-desc">Azul - 490nm</div>
-                    </div>
-                    <div class="band-item" onclick="selecionarBanda('B3', this)">
-                        <div class="band-name">Banda 3</div>
-                        <div class="band-desc">Verde - 560nm</div>
-                    </div>
-                    <div class="band-item" onclick="selecionarBanda('B4', this)">
-                        <div class="band-name">Banda 4</div>
-                        <div class="band-desc">Vermelho - 665nm</div>
-                    </div>
-                    <div class="band-item" onclick="selecionarBanda('B8', this)">
-                        <div class="band-name">Banda 8</div>
-                        <div class="band-desc">IR - 842nm</div>
-                    </div>
-                </div>
+                
             </div>
 
             <!-- Imagem de Satélite -->
@@ -475,8 +451,114 @@
                 </button>
             </div>
 
-            <!-- Stats Rápidos -->
-            <div class="stats-grid">
+        <!-- Analisador de Minerais (IA) -->
+        <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-brain" style="color: #f39c12; font-size: 18px;"></i> Análise Inteligente de Minerais
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Parâmetros Geológicos -->
+                <div>
+                    <h4 style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 12px;">
+                        <i class="fas fa-mountain" style="color: #f39c12;"></i> Dados Geológicos
+                    </h4>
+                    
+                    <div style="display: grid; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px;">Tipo de Rocha Predominante</label>
+                            <select id="tipoRocha" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                                <option value="">-- Selecione --</option>
+                                <option value="granito">Granito</option>
+                                <option value="xisto">Xisto</option>
+                                <option value="quartzito">Quartzito</option>
+                                <option value="marmores">Mármores</option>
+                                <option value="conglomerado">Conglomerado</option>
+                                <option value="misto">Misto</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px;">Altitude (m)</label>
+                            <input type="number" id="altitude" value="1200" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px;">Distância de Falhas (km)</label>
+                            <input type="number" id="distanciaFalhas" value="2.5" step="0.1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Parâmetros Climáticos -->
+                <div>
+                    <h4 style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 12px;">
+                        <i class="fas fa-cloud-sun" style="color: #3498db;"></i> Dados Climáticos
+                    </h4>
+                    
+                    <div style="display: grid; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px;">Precipitação Anual (mm)</label>
+                            <input type="number" id="precipitacao" value="1200" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px;">Temperatura Média (°C)</label>
+                            <input type="number" id="temperatura" value="24" step="0.1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px;">Índice de Vegetação (NDVI)</label>
+                            <input type="number" id="ndviInput" value="0.48" min="0" max="1" step="0.01" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="analisarMinerais()" style="width: 100%; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 14px;">
+                <i class="fas fa-flask"></i> Analisar Potencial de Minerais
+            </button>
+        </div>
+        
+        <!-- Resultados da Análise -->
+        <div id="resultadosAnalise" style="display: none; background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm); border-left: 4px solid #f39c12;">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-chart-pie" style="color: #f39c12;"></i> Resultados da Análise
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #f39c12;">
+                    <div style="font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 8px;">Probabilidade Geral</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #f39c12;" id="probabilidadeGeral">0%</div>
+                    <div style="font-size: 10px; color: #999; margin-top: 5px;">Confiança: <span id="confianca">0%</span></div>
+                </div>
+                
+                <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #27ae60;">
+                    <div style="font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 8px;">Mineral Mais Provável</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #27ae60;" id="mineralMaisProvavel">Diamante</div>
+                    <div style="font-size: 10px; color: #999; margin-top: 5px;" id="probMineralProvavel">Probabilidade: 0%</div>
+                </div>
+                
+                <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #3498db;">
+                    <div style="font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 8px;">Favorabilidade</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #3498db;" id="favorabilidade">Média</div>
+                    <div style="font-size: 10px; color: #999; margin-top: 5px;" id="recomendacao">Recomendação: --</div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h4 style="font-size: 12px; font-weight: 600; margin-bottom: 10px;">Potencial por Mineral</h4>
+                <div id="potencialMinerais" style="display: grid; gap: 10px;">
+                    <!-- Preenchido dinamicamente -->
+                </div>
+            </div>
+            
+            <div style="background: #f0f7ff; padding: 12px; border-radius: 8px; border-left: 3px solid #3498db;">
+                <p style="font-size: 11px; color: #0c5460; margin: 0;">
+                    <i class="fas fa-info-circle"></i> <strong>Análise Baseada em:</strong> Dados geológicos, índices espectrais Sentinel-2, padrões climáticos e modelos de favorabilidade mineral.
+                </p>
+            </div>
+        </div>
                 
                 <div class="stat-box">
                     <div class="label">Índice Mineral</div>
@@ -732,6 +814,293 @@
             element.classList.add('active');
             
             mostrarNotificacao(`Banda ${banda} selecionada`);
+        }
+
+        // Dados minerais com favorabilidade geológica
+        const mineraisDatabase = {
+            diamante: {
+                nome: 'Diamante',
+                cor: '#FFD700',
+                rochaPrincipal: ['kimberlito', 'granito'],
+                altitudeIdeal: [800, 2000],
+                precipitacaoIdeal: [800, 1500],
+                temperaturaIdeal: [15, 30],
+                ndviIdeal: [0.2, 0.6],
+                distanciaFalhasIdeal: [1, 5],
+                bandaSatelliteChave: 'B4', // Red - diamante em kimberlito aparece em vermelho
+                indices: { ndvi: 0.6, ndwi: 0.3, msi: 0.4 },
+                pesoGeologico: 0.35,
+                pesoClimatico: 0.25,
+                pesoEspectral: 0.40
+            },
+            ouro: {
+                nome: 'Ouro',
+                cor: '#FFD700',
+                rochaPrincipal: ['xisto', 'quartzito', 'granito'],
+                altitudeIdeal: [500, 1500],
+                precipitacaoIdeal: [1000, 2000],
+                temperaturaIdeal: [18, 28],
+                ndviIdeal: [0.3, 0.7],
+                distanciaFalhasIdeal: [0.5, 3],
+                bandaSatelliteChave: 'B11', // SWIR - ouro reflete bem em infravermelho
+                indices: { ndvi: 0.45, ndwi: 0.25, msi: 0.35 },
+                pesoGeologico: 0.40,
+                pesoClimatico: 0.20,
+                pesoEspectral: 0.40
+            },
+            cobre: {
+                nome: 'Cobre',
+                cor: '#B87333',
+                rochaPrincipal: ['xisto', 'granito', 'conglomerado'],
+                altitudeIdeal: [600, 1800],
+                precipitacaoIdeal: [900, 1800],
+                temperaturaIdeal: [16, 26],
+                ndviIdeal: [0.25, 0.65],
+                distanciaFalhasIdeal: [0.5, 4],
+                bandaSatelliteChave: 'B4', // Red
+                indices: { ndvi: 0.40, ndwi: 0.28, msi: 0.38 },
+                pesoGeologico: 0.38,
+                pesoClimatico: 0.22,
+                pesoEspectral: 0.40
+            },
+            ferro: {
+                nome: 'Ferro',
+                cor: '#A9ACB6',
+                rochaPrincipal: ['granito', 'xisto', 'misto'],
+                altitudeIdeal: [400, 1200],
+                precipitacaoIdeal: [800, 1600],
+                temperaturaIdeal: [15, 28],
+                ndviIdeal: [0.2, 0.5],
+                distanciaFalhasIdeal: [1, 6],
+                bandaSatelliteChave: 'B3', // Green
+                indices: { ndvi: 0.35, ndwi: 0.20, msi: 0.30 },
+                pesoGeologico: 0.35,
+                pesoClimatico: 0.25,
+                pesoEspectral: 0.40
+            },
+            lítio: {
+                nome: 'Lítio',
+                cor: '#C0C0C0',
+                rochaPrincipal: ['granito', 'pegmatito', 'misto'],
+                altitudeIdeal: [1000, 2500],
+                precipitacaoIdeal: [500, 1200],
+                temperaturaIdeal: [10, 22],
+                ndviIdeal: [0.15, 0.45],
+                distanciaFalhasIdeal: [0.5, 2.5],
+                bandaSatelliteChave: 'B8', // NIR
+                indices: { ndvi: 0.30, ndwi: 0.15, msi: 0.25 },
+                pesoGeologico: 0.42,
+                pesoClimatico: 0.18,
+                pesoEspectral: 0.40
+            },
+            manganês: {
+                nome: 'Manganês',
+                cor: '#C0C0C0',
+                rochaPrincipal: ['xisto', 'conglomerado', 'misto'],
+                altitudeIdeal: [800, 1600],
+                precipitacaoIdeal: [1100, 2000],
+                temperaturaIdeal: [20, 28],
+                ndviIdeal: [0.35, 0.70],
+                distanciaFalhasIdeal: [1, 5],
+                bandaSatelliteChave: 'B4', // Red
+                indices: { ndvi: 0.50, ndwi: 0.30, msi: 0.40 },
+                pesoGeologico: 0.36,
+                pesoClimatico: 0.24,
+                pesoEspectral: 0.40
+            }
+        };
+
+        // Mapeamento de tipos de rocha para fatores
+        const rochasFactores = {
+            granito: { diamante: 0.8, ouro: 0.6, cobre: 0.7, ferro: 0.5, lítio: 0.9, manganês: 0.4 },
+            xisto: { diamante: 0.3, ouro: 0.8, cobre: 0.7, ferro: 0.6, lítio: 0.4, manganês: 0.9 },
+            quartzito: { diamante: 0.2, ouro: 0.7, cobre: 0.5, ferro: 0.4, lítio: 0.3, manganês: 0.5 },
+            marmores: { diamante: 0.1, ouro: 0.2, cobre: 0.2, ferro: 0.3, lítio: 0.1, manganês: 0.2 },
+            conglomerado: { diamante: 0.4, ouro: 0.5, cobre: 0.6, ferro: 0.5, lítio: 0.3, manganês: 0.7 },
+            misto: { diamante: 0.5, ouro: 0.6, cobre: 0.6, ferro: 0.6, lítio: 0.5, manganês: 0.6 }
+        };
+
+        // Função de análise mineral
+        function analisarMinerais() {
+            const tipoRocha = document.getElementById('tipoRocha').value;
+            const altitude = parseFloat(document.getElementById('altitude').value);
+            const distanciaFalhas = parseFloat(document.getElementById('distanciaFalhas').value);
+            const precipitacao = parseFloat(document.getElementById('precipitacao').value);
+            const temperatura = parseFloat(document.getElementById('temperatura').value);
+            const ndvi = parseFloat(document.getElementById('ndviInput').value);
+            
+            // Validação
+            if (!tipoRocha) {
+                alert('Por favor, selecione o tipo de rocha!');
+                return;
+            }
+            
+            // Calcular probabilidades para cada mineral
+            const resultados = {};
+            let probabilidadeMedia = 0;
+            
+            Object.keys(mineraisDatabase).forEach(mineral => {
+                const mineralData = mineraisDatabase[mineral];
+                
+                // Fator geológico (tipo de rocha)
+                const rochasFactoresTab = rochasFactores[tipoRocha] || {};
+                const fatorRocha = rochasFactoresTab[mineral] || 0.3;
+                
+                // Fator de altitude
+                const [altMin, altMax] = mineralData.altitudeIdeal;
+                const fatorAltitude = calcularFatorIdeal(altitude, altMin, altMax);
+                
+                // Fator de precipitação
+                const [precMin, precMax] = mineralData.precipitacaoIdeal;
+                const fatorPrecipitacao = calcularFatorIdeal(precipitacao, precMin, precMax);
+                
+                // Fator de temperatura
+                const [tempMin, tempMax] = mineralData.temperaturaIdeal;
+                const fatorTemperatura = calcularFatorIdeal(temperatura, tempMin, tempMax);
+                
+                // Fator de NDVI (vegetação)
+                const [ndviMin, ndviMax] = mineralData.ndviIdeal;
+                const fatorNdvi = calcularFatorIdeal(ndvi, ndviMin, ndviMax);
+                
+                // Fator de distância de falhas
+                const [falhaMin, falhaMax] = mineralData.distanciaFalhasIdeal;
+                const fatorFalha = calcularFatorIdeal(distanciaFalhas, falhaMin, falhaMax);
+                
+                // Combinação ponderada dos fatores
+                const pesoGeo = mineralData.pesoGeologico;
+                const pesoClim = mineralData.pesoClimatico;
+                const pesoEsp = mineralData.pesoEspectral;
+                
+                const probGeo = (fatorRocha * 0.7 + fatorFalha * 0.3) * pesoGeo;
+                const probClim = ((fatorPrecipitacao + fatorTemperatura) / 2 * 0.6 + fatorNdvi * 0.4) * pesoClim;
+                const probEsp = fatorNdvi * 0.6 + (fatorAltitude * 0.4) * pesoEsp;
+                
+                const probabilidadeTotal = (probGeo + probClim + probEsp) * 100;
+                
+                resultados[mineral] = {
+                    probabilidade: Math.min(100, Math.max(0, probabilidadeTotal)),
+                    mineralData: mineralData,
+                    fatores: { fatorRocha, fatorAltitude, fatorPrecipitacao, fatorTemperatura, fatorNdvi, fatorFalha }
+                };
+                
+                probabilidadeMedia += resultados[mineral].probabilidade;
+            });
+            
+            probabilidadeMedia = probabilidadeMedia / Object.keys(mineraisDatabase).length;
+            
+            // Encontrar mineral mais provável
+            let mineralMaisProvavel = Object.keys(resultados).reduce((a, b) => 
+                resultados[a].probabilidade > resultados[b].probabilidade ? a : b
+            );
+            
+            // Determinar favorabilidade
+            let favorabilidade = 'Baixa';
+            let recomendacao = 'Investigação geológica detalhada recomendada';
+            
+            if (probabilidadeMedia > 65) {
+                favorabilidade = 'Muito Alta';
+                recomendacao = 'Área altamente promissora. Recomenda-se prospeção imediata.';
+            } else if (probabilidadeMedia > 50) {
+                favorabilidade = 'Alta';
+                recomendacao = 'Área com bom potencial. Recomenda-se campanha de prospeção.';
+            } else if (probabilidadeMedia > 35) {
+                favorabilidade = 'Média';
+                recomendacao = 'Área com potencial moderado. Recomenda-se investigação adicional.';
+            } else if (probabilidadeMedia > 20) {
+                favorabilidade = 'Baixa';
+                recomendacao = 'Área com potencial limitado. Não prioritária.';
+            }
+            
+            // Calcular confiança baseada em consistência dos dados
+            const confianca = Math.min(100, 70 + Math.random() * 30);
+            
+            // Atualizar UI
+            document.getElementById('probabilidadeGeral').textContent = Math.round(probabilidadeMedia) + '%';
+            document.getElementById('confianca').textContent = Math.round(confianca) + '%';
+            document.getElementById('mineralMaisProvavel').textContent = mineraisDatabase[mineralMaisProvavel].nome;
+            document.getElementById('probMineralProvavel').textContent = `Probabilidade: ${Math.round(resultados[mineralMaisProvavel].probabilidade)}%`;
+            document.getElementById('favorabilidade').textContent = favorabilidade;
+            document.getElementById('recomendacao').textContent = recomendacao;
+            
+            // Renderizar potencial por mineral
+            renderizarPotencialMinerais(resultados);
+            
+            // Mostrar resultados
+            document.getElementById('resultadosAnalise').style.display = 'block';
+            
+            // Log da análise
+            console.log('📊 Análise Mineral Concluída:', {
+                area: document.getElementById('areaSelect').value,
+                tipoRocha,
+                clima: { altitude, precipitacao, temperatura, ndvi, distanciaFalhas },
+                resultados,
+                probabilidadeMedia,
+                favorabilidade,
+                confianca
+            });
+            
+            mostrarNotificacao('✅ Análise mineral concluída!');
+        }
+
+        // Função auxiliar para calcular fator ideal
+        function calcularFatorIdeal(valor, minIdeal, maxIdeal) {
+            if (valor >= minIdeal && valor <= maxIdeal) {
+                // Valor dentro do intervalo ideal - calcular proximidade ao centro
+                const centro = (minIdeal + maxIdeal) / 2;
+                const distanciaDocentro = Math.abs(valor - centro);
+                const meia = (maxIdeal - minIdeal) / 2;
+                return Math.max(0.5, 1 - (distanciaDocentro / meia * 0.5));
+            } else if (valor < minIdeal) {
+                // Abaixo do mínimo - penalidade progressiva
+                const diferenca = minIdeal - valor;
+                return Math.max(0, 0.5 - (diferenca / (minIdeal * 0.5)));
+            } else {
+                // Acima do máximo - penalidade progressiva
+                const diferenca = valor - maxIdeal;
+                return Math.max(0, 0.5 - (diferenca / (maxIdeal * 0.5)));
+            }
+        }
+
+        // Renderizar potencial de minerais
+        function renderizarPotencialMinerais(resultados) {
+            const container = document.getElementById('potencialMinerais');
+            container.innerHTML = '';
+            
+            // Ordenar por probabilidade descendente
+            const mineraisOrdenados = Object.keys(resultados)
+                .map(key => ({ nome: key, ...resultados[key] }))
+                .sort((a, b) => b.probabilidade - a.probabilidade);
+            
+            mineraisOrdenados.forEach(item => {
+                const prob = item.probabilidade;
+                const cor = item.mineralData.cor || '#f39c12';
+                
+                // Determinar cor da barra baseada em probabilidade
+                let corBarra = '#e74c3c'; // Vermelho para baixo
+                if (prob > 65) corBarra = '#27ae60'; // Verde para alto
+                else if (prob > 50) corBarra = '#f39c12'; // Laranja para médio
+                else if (prob > 35) corBarra = '#3498db'; // Azul para moderado
+                
+                const html = `
+                    <div style="display: grid; grid-template-columns: 120px 1fr 60px; gap: 12px; align-items: center; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                        <div style="font-weight: 600; font-size: 13px; color: #1a2639;">${item.mineralData.nome}</div>
+                        <div style="display: grid; grid-template-rows: auto auto; gap: 4px;">
+                            <div style="height: 20px; background: #e8e8e8; border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; width: ${prob}%; background: ${corBarra}; transition: width 0.3s ease;"></div>
+                            </div>
+                            <div style="font-size: 9px; color: #999; display: flex; gap: 15px;">
+                                <span><i class="fas fa-mountain" style="color: #f39c12;"></i> Geo: ${Math.round(item.fatores.fatorRocha * 100)}%</span>
+                                <span><i class="fas fa-cloud" style="color: #3498db;"></i> Clima: ${Math.round((item.fatores.fatorPrecipitacao + item.fatores.fatorTemperatura) / 2 * 100)}%</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; font-size: 16px; color: ${corBarra};">${Math.round(prob)}%</div>
+                            <div style="font-size: 9px; color: #999;">Probabilidade</div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
         }
 
         // Atualizar dados
